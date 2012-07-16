@@ -11,8 +11,8 @@ def SendQueriesTask(queries, viewname, is_view):
 
 
 @task(name="tasks.SendBenchmarkTask")
-def SendBenchmarkTask(exectime, viewname, is_view):
-    send.SendBenchmark(exectime, viewname, is_view)
+def SendBenchmarkTask(exectime, cputime, viewname, is_view):
+    send.SendBenchmark(exectime, cputime, viewname, is_view)
 
 
 @task(name="tasks.SendMemcacheStat")

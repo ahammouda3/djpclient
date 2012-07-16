@@ -38,7 +38,7 @@ def TransmitQueries(request, queries, sender=None, name=''):
         send.SendQueries(queries, name, is_view)
 
 
-def TransmitBenchmark(request, exectime, sender=None, name=''):
+def TransmitBenchmark(request, exectime, cputime, sender=None, name=''):
     "Sends benchmark data to server"
     if exectime is None or exectime <= 0.0:
         return
@@ -50,9 +50,9 @@ def TransmitBenchmark(request, exectime, sender=None, name=''):
         is_view = False
     
     if appsettings.SEND_ASYNC:
-        tasks.SendBenchmarkTask.delay(exectime, name, is_view)
+        tasks.SendBenchmarkTask.delay(exectime, cputime, name, is_view)
     else:
-        send.SendBenchmark(exectime, name, is_view)
+        send.SendBenchmark(exectime, cputime, name, is_view)
 
 
 

@@ -4,8 +4,7 @@ from django.db import connection
 from functools import wraps
 import memory, actions
 
-
-import stopwatch
+import stopwatch, time
 
 import logging
 logger = logging.getLogger(__name__)
@@ -16,9 +15,13 @@ def profile(fn):
     def wrapped(request, *args, **kwargs):
         logger.info('profile wrapper called')
         timer = stopwatch.Timer()
+        cput1 = time.clock()
         
         response = fn(request, *args, **kwargs)
         time = timer.stop()
+        cput2 = time.clock()
+        
+        cputime = cput2 - cput1
         
         if getattr(settings, 'PROFILE_QUERIES', True):
             actions.TransmitQueries(request,
@@ -27,7 +30,8 @@ def profile(fn):
         
         if getattr(settings, 'PROFILE_BENCHMARKS', True):
             actions.TransmitBenchmark(request,
-                                      exectime=time, sender=fn)
+                                      exectime=time, cputime=cputime,
+                                      sender=fn)
         
         if getattr(settings, 'PROFILE_MEMCACHE_STATS', True):
             actions.TransmitMemcacheStats(request, stats=memory.GetMemcacheStats(), sender=fn)

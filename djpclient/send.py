@@ -25,13 +25,14 @@ def SendQueries(queries, name, is_view):
         print 'query endpoint response: ', resp
 
 
-def SendBenchmark(exectime, viewname, is_view=True):
+def SendBenchmark(exectime, cputime, viewname, is_view=True):
     values = {'appusername': appsettings.APP_USERNAME,
               'appname': appsettings.APP_NAME,
               'name': viewname,
               'is_view': is_view,
               'submission_timestamp': str(datetime.now()),
-              'execution_time': exectime
+              'execution_time': exectime,
+              'cpu_time': cputime
               }
     resp = requests.post(appsettings.BENCHMARK_ENDPOINT,
                          data=simplejson.dumps(values),
@@ -83,6 +84,7 @@ def SendUserActivity(is_anonymous, username, userid, useremail, name, is_view):
                          headers={'content-type': 'application/json'})
     
     print 'useractivity endpoint response: ', resp
+
 
 def SendUserConversion(is_anonymous, username, userid, useremail, name, is_view,
                        conversion_value=1.0, conversion_economic_value=0.0):
