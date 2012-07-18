@@ -7,3 +7,6 @@ include
 .project
 .pydevproject
 .settings
+dist
+djpclient.egg-info
+
