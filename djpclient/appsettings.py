@@ -24,6 +24,7 @@ if not API_KEY:
 
 
 SEND_ASYNC = getattr(settings, 'PROFILE_SEND_ASYNC', False)
+BUNDLE_DATA = getattr(settings, 'USE_BUNDLED_ENDPOINT', True)
 
 if DEBUG:
     BASE_URL = 'http://localhost:8000'
@@ -38,4 +39,4 @@ BENCHMARK_ENDPOINT = '%s/api/%s/benchmark/?%s' % (BASE_URL, API_VERSION, CREDENT
 MEMCACHESTAT_ENDPOINT = '%s/api/%s/memcachestat/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)
 USER_ACTIVITY_ENDPOINT = '%s/api/%s/useractivity/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)
 USER_CONVERSION_ENDPOINT = '%s/api/%s/userconversion/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)
-
+BUNDLED_DATA_ENDPOINT = '%s/api/%s/clientappdata/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)

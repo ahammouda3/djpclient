@@ -1,8 +1,12 @@
 
 from django.conf import settings
 from django.db import connection
+from django.utils import simplejson
+
 from functools import wraps
 import memory, actions
+
+import appsettings
 
 import stopwatch, time
 
@@ -18,27 +22,34 @@ def profile(fn):
         cput1 = time.clock()
         
         response = fn(request, *args, **kwargs)
-        time = timer.stop()
+        exectime = timer.stop()
         cput2 = time.clock()
         
         cputime = cput2 - cput1
         
-        if getattr(settings, 'PROFILE_QUERIES', True):
-            actions.TransmitQueries(request,
-                                    queries=connection.queries,
-                                    sender=fn)
-        
-        if getattr(settings, 'PROFILE_BENCHMARKS', True):
-            actions.TransmitBenchmark(request,
-                                      exectime=time, cputime=cputime,
-                                      sender=fn)
-        
-        if getattr(settings, 'PROFILE_MEMCACHE_STATS', True):
-            actions.TransmitMemcacheStats(request, stats=memory.GetMemcacheStats(), sender=fn)
-        
-        if getattr(settings, 'PROFILE_USER_ACTIVITY', True):
-            actions.TransmitUserActivity(request, sender=fn)
-        
+        if appsettings.BUNDLE_DATA:
+            actions.TransmitBundledData(request,
+                                        simplejson.dumps(connection.queries),
+                                        exectime, cputime,
+                                        memory.GetAggregateMemcacheStats(),
+                                        sender=view)
+        else:
+            if getattr(settings, 'PROFILE_QUERIES', True):
+                actions.TransmitQueries(request,
+                                        queries=connection.queries,
+                                        sender=fn)
+            
+            if getattr(settings, 'PROFILE_BENCHMARKS', True):
+                actions.TransmitBenchmark(request,
+                                          exectime=exectime, cputime=cputime,
+                                          sender=fn)
+            
+            if getattr(settings, 'PROFILE_MEMCACHE_STATS', True):
+                actions.TransmitMemcacheStats(request, stats=memory.GetMemcacheStats(), sender=fn)
+            
+            if getattr(settings, 'PROFILE_USER_ACTIVITY', True):
+                actions.TransmitUserActivity(request, sender=fn)
+            
         return response
     
     return wrapped
@@ -57,9 +68,9 @@ def profile_components(components=[]):
             if benchmark and getattr(settings, 'PROFILE_BENCHMARKS', True):
                 timer = stopwatch.Timer()
                 response = func(request, *args, **kwargs)
-                time = timer.stop()
+                exectime = timer.stop()
                 
-                actions.TransmitBenchmark(request, exectime=time, sender=func)
+                actions.TransmitBenchmark(request, exectime=exectime, sender=func)
                 
             else:
                 response = func(request, *args, **kwargs)

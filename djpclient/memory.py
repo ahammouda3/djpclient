@@ -2,6 +2,7 @@
 import memcache, re
 from django.conf import settings
 from datetime import datetime, timedelta
+              
 
 class MemcachedStats:
     """
@@ -41,7 +42,7 @@ def _query_memcache_server(location):
 
 def GetMemcacheStats():
     """
-    Queries the memcache server for stats. Returns None if
+    Queries the memcache server for stats. Returns empty list if
     no CACHES (dictionary of dictionaries) are defined in settings.py
     """
     
@@ -60,6 +61,28 @@ def GetMemcacheStats():
             stats.append(_query_memcache_server(location))
     
     return stats
+
+def GetAggregateMemcacheStats():
+    agg_stats = ('bytes', 'curr_connections', 'bytes_read', 'bytes_written',
+             'get_hits', 'get_misses', 'cmd_get', 'cmd_set')
+    max_stats = ('limit_maxbytes',)
+    
+    stats = GetMemcacheStats()
+    agg = MemcachedStats()
+    
+    if stats:
+        for stat in stats:
+            for a in agg_stats:
+                setattr(agg, a, getattr(agg, a, 0) + getattr(stat, a))
+            for a in max_stats:
+                setattr(agg, a, max(getattr(agg, a, 0), getattr(stat, a)))
+    else:
+        for a in agg_stats:
+            setattr(agg, a, 0)
+        for a in max_stats:
+            setattr(agg, a, 0)
+    
+    return agg
 
 
 

@@ -1,11 +1,12 @@
 
+from django.utils import simplejson
+
 import urllib, urllib2
 
 
 import appsettings
 from datetime import datetime
 
-import simplejson
 import tasks, send
 
 import logging
@@ -100,5 +101,24 @@ def TransmitUserActivity(request, sender=None, name=''):
         tasks.SendUserActivity(is_anonymous, username, userid, useremail, name, is_view)
     else:
         send.SendUserActivity(is_anonymous, username, userid, useremail, name, is_view)
+
+
+def TransmitBundledData(request, querydata, exectime, cputime, stat, sender):
+    name = _getviewname(sender)
+    
+    is_anonymous = not request.user.is_authenticated()
+    if is_anonymous:
+        username = 'anonymous'
+        userid = '-1'
+        useremail = ''
+    else:
+        username = request.user.username
+        userid = str(request.user.id)
+        useremail = request.user.email
+    
+    if appsettings.SEND_ASYNC:
+        tasks.SendBundle.delay(querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
+    else:
+        send.SendBundle(querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
 
 

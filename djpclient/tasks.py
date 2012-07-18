@@ -1,6 +1,5 @@
 
 from celery.task import task
-#from celery.decorators import task
 
 import send
 
@@ -9,11 +8,9 @@ import send
 def SendQueriesTask(queries, viewname, is_view):
     send.SendQueries(queries, viewname, is_view)
 
-
 @task(name="tasks.SendBenchmarkTask")
 def SendBenchmarkTask(exectime, cputime, viewname, is_view):
     send.SendBenchmark(exectime, cputime, viewname, is_view)
-
 
 @task(name="tasks.SendMemcacheStat")
 def SendMemcacheStat(statobj, viewname, is_view):
@@ -23,3 +20,6 @@ def SendMemcacheStat(statobj, viewname, is_view):
 def SendUserActivity(is_anonymous, username, userid, useremail, viewname, is_view):
     send.SendUserActivity(is_anonymous, username, userid, useremail, viewname, is_view)
 
+@task(name="tasks.SendBundle")
+def SendBundle(querydata, exectime, cputime, stat, name):
+    send.SendBundle(querydata, exectime, cputime, stat, name)
