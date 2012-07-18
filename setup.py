@@ -12,5 +12,5 @@ setup(
     description = ("Django Profiler Client for profiling and application performance measurement services at djangoperformance.com"),
     license = "GPL",
     url = "https://github.com/ailling/djpclient",
-    install_requires=['requests>=0.13.1', 'stopwatch>=0.3.1', 'Django>=1.3.1',]
+    install_requires=['requests>=0.13.1', 'stopwatch>=0.3.1', 'Django>=1.3.1', 'python-memcached>=1.48']
 )

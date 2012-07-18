@@ -2,7 +2,7 @@
 import memcache, re
 from django.conf import settings
 from datetime import datetime, timedelta
-              
+
 
 class MemcachedStats:
     """
