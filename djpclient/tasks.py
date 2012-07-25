@@ -21,5 +21,5 @@ def SendUserActivity(is_anonymous, username, userid, useremail, viewname, is_vie
     send.SendUserActivity(is_anonymous, username, userid, useremail, viewname, is_view)
 
 @task(name="tasks.SendBundle")
-def SendBundle(querydata, exectime, cputime, stat, name):
-    send.SendBundle(querydata, exectime, cputime, stat, name)
+def SendBundle(kwargs, querydata, exectime, cputime, stat, name):
+    send.SendBundle(kwargs, querydata, exectime, cputime, stat, name)

@@ -4,7 +4,7 @@ WARNING:
     nothing in this module should be changed; instead interact with settings.py
     and refer to the documentation at: http://djangoperformance.com/docs/
 """
-DEBUG = False
+DEBUG = True
 
 from django.conf import settings
 
@@ -39,4 +39,6 @@ BENCHMARK_ENDPOINT = '%s/api/%s/benchmark/?%s' % (BASE_URL, API_VERSION, CREDENT
 MEMCACHESTAT_ENDPOINT = '%s/api/%s/memcachestat/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)
 USER_ACTIVITY_ENDPOINT = '%s/api/%s/useractivity/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)
 USER_CONVERSION_ENDPOINT = '%s/api/%s/userconversion/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)
+
 BUNDLED_DATA_ENDPOINT = '%s/api/%s/clientappdata/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)
+

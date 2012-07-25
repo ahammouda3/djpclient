@@ -21,12 +21,14 @@ class DJPClientMiddleware(object):
         cput1 = time.clock()
         
         response = view(request, *args, **kwargs)
+        
         exectime = timer.stop()
         cput2 = time.clock()
         cputime = cput2 - cput1
         
         if appsettings.BUNDLE_DATA:
             actions.TransmitBundledData(request,
+                                        simplejson.dumps(kwargs),
                                         simplejson.dumps(connection.queries),
                                         exectime, cputime,
                                         memory.GetAggregateMemcacheStats(),

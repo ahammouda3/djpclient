@@ -103,7 +103,7 @@ def TransmitUserActivity(request, sender=None, name=''):
         send.SendUserActivity(is_anonymous, username, userid, useremail, name, is_view)
 
 
-def TransmitBundledData(request, querydata, exectime, cputime, stat, sender):
+def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sender):
     name = _getviewname(sender)
     
     is_anonymous = not request.user.is_authenticated()
@@ -117,8 +117,8 @@ def TransmitBundledData(request, querydata, exectime, cputime, stat, sender):
         useremail = request.user.email
     
     if appsettings.SEND_ASYNC:
-        tasks.SendBundle.delay(querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
+        tasks.SendBundle.delay(kwargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
     else:
-        send.SendBundle(querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
+        send.SendBundle(kwargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
 
 

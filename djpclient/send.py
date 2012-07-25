@@ -72,7 +72,7 @@ def SendUserActivity(is_anonymous, username, userid, useremail, name, is_view):
               'appname': appsettings.APP_NAME,
               'name': name,
               'is_view': is_view,
-              'activity_timestamp': str(datetime.now()),
+              'submission_timestamp': str(datetime.now()),
               
               'is_anonymous': is_anonymous,
               'websiteuserid': str(userid),
@@ -92,8 +92,9 @@ def SendUserConversion(is_anonymous, username, userid, useremail, name, is_view,
     raise Exception('not implemented yet')
 
 
-def SendBundle(querydata, exectime, cputime, statobj, is_anonymous, username, userid, useremail, name, is_view=True):
-    values = {'appusername': appsettings.APP_USERNAME,
+def SendBundle(kwargs, querydata, exectime, cputime, statobj, is_anonymous, username, userid, useremail, name, is_view=True):
+    values = {'kwargs': kwargs,
+              'appusername': appsettings.APP_USERNAME,
               'appname': appsettings.APP_NAME,
               'name': name,
               'is_view': is_view,
