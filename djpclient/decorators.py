@@ -28,27 +28,30 @@ def profile(fn):
         cputime = cput2 - cput1
         
         if appsettings.BUNDLE_DATA:
-            actions.TransmitBundledData(request,
+            actions.TransmitBundledData(request, kwargs,
                                         simplejson.dumps(connection.queries),
                                         exectime, cputime,
                                         memory.GetAggregateMemcacheStats(),
                                         sender=view)
         else:
             if getattr(settings, 'PROFILE_QUERIES', True):
-                actions.TransmitQueries(request,
+                actions.TransmitQueries(request, kwargs,
                                         queries=connection.queries,
                                         sender=fn)
             
             if getattr(settings, 'PROFILE_BENCHMARKS', True):
-                actions.TransmitBenchmark(request,
+                actions.TransmitBenchmark(request, kwargs,
                                           exectime=exectime, cputime=cputime,
                                           sender=fn)
             
             if getattr(settings, 'PROFILE_MEMCACHE_STATS', True):
-                actions.TransmitMemcacheStats(request, stats=memory.GetMemcacheStats(), sender=fn)
+                actions.TransmitMemcacheStats(request, kwargs,
+                                              stats=memory.GetMemcacheStats(),
+                                              sender=fn)
             
             if getattr(settings, 'PROFILE_USER_ACTIVITY', True):
-                actions.TransmitUserActivity(request, sender=fn)
+                actions.TransmitUserActivity(request, kwargs,
+                                             sender=fn)
             
         return response
     
@@ -60,34 +63,38 @@ def profile_components(components=[]):
         def inner_decorator(request, *args, **kwargs):
             ls = map(lambda x: x.lower(), components)
             
-            sql = 'sql' in ls or 'query' in ls
-            benchmark = 'benchmark' in ls
+            sql = 'sql' in ls or 'query' in ls or 'queries' in ls
+            benchmark = 'benchmark' in ls or 'benchmarks' in ls
             memcache = 'memcached' in ls or 'memcache' in ls
             useractivity = 'useractivity' in ls or 'user activity' in ls
             
             if benchmark and getattr(settings, 'PROFILE_BENCHMARKS', True):
                 timer = stopwatch.Timer()
+                cput1 = time.clock()
                 response = func(request, *args, **kwargs)
                 exectime = timer.stop()
+                cput2 = time.clock()
+        
+                cputime = cput2 - cput1
                 
-                actions.TransmitBenchmark(request, exectime=exectime, sender=func)
+                actions.TransmitBenchmark(request, kwargs, exectime=exectime, cputime=cputime, sender=func)
                 
             else:
                 response = func(request, *args, **kwargs)
             
             
             if sql and getattr(settings, 'PROFILE_QUERIES', True):
-                actions.TransmitQueries(request,
+                actions.TransmitQueries(request, kwargs,
                                         queries=connection.queries,
                                         sender=func)
             
             if memcache and getattr(settings, 'PROFILE_MEMCACHE_STATS', True):
-                actions.TransmitMemcacheStats(request,
+                actions.TransmitMemcacheStats(request, kwargs,
                                               stats=memory.GetMemcacheStats(),
                                               sender=func)
             
             if useractivity and getattr(settings, 'PROFILE_USER_ACTIVITY', True):
-                actions.TransmitUserActivity(request, sender=func)
+                actions.TransmitUserActivity(request, kwargs, sender=func)
             
             return response
         return wraps(func)(inner_decorator)

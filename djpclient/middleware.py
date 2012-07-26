@@ -27,33 +27,29 @@ class DJPClientMiddleware(object):
         cputime = cput2 - cput1
         
         if appsettings.BUNDLE_DATA:
-            actions.TransmitBundledData(request,
-                                        simplejson.dumps(kwargs),
+            actions.TransmitBundledData(request, kwargs,
                                         simplejson.dumps(connection.queries),
                                         exectime, cputime,
                                         memory.GetAggregateMemcacheStats(),
                                         sender=view)
         else:
             if getattr(settings, 'PROFILE_QUERIES', True):
-                actions.TransmitQueries(request,
-                                        simplejson.dumps(kwargs),
+                actions.TransmitQueries(request, kwargs,
                                         queries=connection.queries,
                                         sender=view)
             
             if getattr(settings, 'PROFILE_BENCHMARKS', True):
-                actions.TransmitBenchmark(request,
-                                          simplejson.dumps(kwargs),
+                actions.TransmitBenchmark(request, kwargs,
                                           exectime, cputime,
                                           sender=view)
             
             if getattr(settings, 'PROFILE_MEMCACHE_STATS', True):
-                actions.TransmitMemcacheStats(request,
-                                              simplejson.dumps(kwargs),
-                                              stats=memory.GetAggregateMemcacheStats(), sender=view)
+                actions.TransmitMemcacheStats(request, kwargs,
+                                              stats=memory.GetAggregateMemcacheStats(),
+                                              sender=view)
             
             if getattr(settings, 'PROFILE_USER_ACTIVITY', True):
-                actions.TransmitUserActivity(request,
-                                             simplejson.dumps(kwargs),
+                actions.TransmitUserActivity(request, kwargs,
                                              sender=view)
         
         return response

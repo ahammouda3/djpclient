@@ -14,12 +14,22 @@ logger = logging.getLogger(__name__)
 
 import pdb
 
+ALLOWED_KW_TYPES = (str, unicode, int, long, float,)
+
+
 def _getviewname(sender=None):
     if sender is not None:
         return sender.__module__ + '.' + sender.__name__
     else:
         return ''
 
+
+def CleanKwargs(kwargs):
+    cleankwargs = {}
+    for key, value in kwargs.items():
+        if type(key) in ALLOWED_KW_TYPES and type(value) in ALLOWED_KW_TYPES:
+            cleankwargs[str(key)] = str(value)
+    return simplejson.dumps(cleankwargs)
 
 
 def TransmitQueries(request, kwargs, queries, sender=None, name=''):
@@ -36,9 +46,9 @@ def TransmitQueries(request, kwargs, queries, sender=None, name=''):
     requestargs = simplejson.dumps(dict(request.GET))
     
     if appsettings.SEND_ASYNC:
-        tasks.SendQueriesTask.delay(kwargs, requestargs, queries, name, is_view)
+        tasks.SendQueriesTask.delay(CleanKwargs(kwargs), requestargs, queries, name, is_view)
     else:
-        send.SendQueries(kwargs, requestargs, queries, name, is_view)
+        send.SendQueries(CleanKwargs(kwargs), requestargs, queries, name, is_view)
 
 
 def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name=''):
@@ -55,9 +65,9 @@ def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name=''):
     requestargs = simplejson.dumps(dict(request.GET))
     
     if appsettings.SEND_ASYNC:
-        tasks.SendBenchmarkTask.delay(kwargs, requestargs, exectime, cputime, name, is_view)
+        tasks.SendBenchmarkTask.delay(CleanKwargs(kwargs), requestargs, exectime, cputime, name, is_view)
     else:
-        send.SendBenchmark(kwargs, requestargs, exectime, cputime, name, is_view)
+        send.SendBenchmark(CleanKwargs(kwargs), requestargs, exectime, cputime, name, is_view)
 
 
 
@@ -81,9 +91,9 @@ def TransmitMemcacheStats(request, kwargs, stats, sender=None, name=''):
             continue
         
         if appsettings.SEND_ASYNC:
-            tasks.SendMemcacheStat.delay(kwargs, requestargs, stat, name, is_view)
+            tasks.SendMemcacheStat.delay(CleanKwargs(kwargs), requestargs, stat, name, is_view)
         else:
-            send.SendMemcacheStat(kwargs, requestargs, stat, name, is_view)
+            send.SendMemcacheStat(CleanKwargs(kwargs), requestargs, stat, name, is_view)
 
 
 def TransmitUserActivity(request, kwargs, sender=None, name=''):
@@ -106,9 +116,9 @@ def TransmitUserActivity(request, kwargs, sender=None, name=''):
     requestargs = simplejson.dumps(dict(request.GET))
     
     if appsettings.SEND_ASYNC:
-        tasks.SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view)
+        tasks.SendUserActivity(CleanKwargs(kwargs), requestargs, is_anonymous, username, userid, useremail, name, is_view)
     else:
-        send.SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view)
+        send.SendUserActivity(CleanKwargs(kwargs), requestargs, is_anonymous, username, userid, useremail, name, is_view)
 
 
 def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sender):
@@ -127,8 +137,8 @@ def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sen
     requestargs = simplejson.dumps(dict(request.GET))
     
     if appsettings.SEND_ASYNC:
-        tasks.SendBundle.delay(kwargs, requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
+        tasks.SendBundle.delay(CleanKwargs(kwargs), requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
     else:
-        send.SendBundle(kwargs, requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
+        send.SendBundle(CleanKwargs(kwargs), requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
 
 
