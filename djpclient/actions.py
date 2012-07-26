@@ -22,7 +22,7 @@ def _getviewname(sender=None):
 
 
 
-def TransmitQueries(request, queries, sender=None, name=''):
+def TransmitQueries(request, kwargs, queries, sender=None, name=''):
     "Sends query data to server"
     if queries is None:
         return
@@ -33,13 +33,15 @@ def TransmitQueries(request, queries, sender=None, name=''):
     else:
         is_view = False
     
+    requestargs = simplejson.dumps(dict(request.GET))
+    
     if appsettings.SEND_ASYNC:
-        tasks.SendQueriesTask.delay(queries, name, is_view)
+        tasks.SendQueriesTask.delay(kwargs, requestargs, queries, name, is_view)
     else:
-        send.SendQueries(queries, name, is_view)
+        send.SendQueries(kwargs, requestargs, queries, name, is_view)
 
 
-def TransmitBenchmark(request, exectime, cputime, sender=None, name=''):
+def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name=''):
     "Sends benchmark data to server"
     if exectime is None or exectime <= 0.0:
         return
@@ -50,14 +52,16 @@ def TransmitBenchmark(request, exectime, cputime, sender=None, name=''):
     else:
         is_view = False
     
+    requestargs = simplejson.dumps(dict(request.GET))
+    
     if appsettings.SEND_ASYNC:
-        tasks.SendBenchmarkTask.delay(exectime, cputime, name, is_view)
+        tasks.SendBenchmarkTask.delay(kwargs, requestargs, exectime, cputime, name, is_view)
     else:
-        send.SendBenchmark(exectime, cputime, name, is_view)
+        send.SendBenchmark(kwargs, requestargs, exectime, cputime, name, is_view)
 
 
 
-def TransmitMemcacheStats(request, stats, sender=None, name=''):
+def TransmitMemcacheStats(request, kwargs, stats, sender=None, name=''):
     """
     Transmits profiled memcache data to djangoperformance.com
     """
@@ -70,17 +74,19 @@ def TransmitMemcacheStats(request, stats, sender=None, name=''):
     else:
         is_view = False
     
+    requestargs = simplejson.dumps(dict(request.GET))
+    
     for stat in stats:
         if stat is None or stat.__class__.__name__ != 'MemcachedStats':
             continue
         
         if appsettings.SEND_ASYNC:
-            tasks.SendMemcacheStat.delay(stat, name, is_view)
+            tasks.SendMemcacheStat.delay(kwargs, requestargs, stat, name, is_view)
         else:
-            send.SendMemcacheStat(stat, name, is_view)
+            send.SendMemcacheStat(kwargs, requestargs, stat, name, is_view)
 
 
-def TransmitUserActivity(request, sender=None, name=''):
+def TransmitUserActivity(request, kwargs, sender=None, name=''):
     if not name:
         name = _getviewname(sender)
         is_view = True
@@ -97,10 +103,12 @@ def TransmitUserActivity(request, sender=None, name=''):
         userid = str(request.user.id)
         useremail = request.user.email
     
+    requestargs = simplejson.dumps(dict(request.GET))
+    
     if appsettings.SEND_ASYNC:
-        tasks.SendUserActivity(is_anonymous, username, userid, useremail, name, is_view)
+        tasks.SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view)
     else:
-        send.SendUserActivity(is_anonymous, username, userid, useremail, name, is_view)
+        send.SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view)
 
 
 def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sender):
@@ -116,9 +124,11 @@ def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sen
         userid = str(request.user.id)
         useremail = request.user.email
     
+    requestargs = simplejson.dumps(dict(request.GET))
+    
     if appsettings.SEND_ASYNC:
-        tasks.SendBundle.delay(kwargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
+        tasks.SendBundle.delay(kwargs, requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
     else:
-        send.SendBundle(kwargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
+        send.SendBundle(kwargs, requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
 
 

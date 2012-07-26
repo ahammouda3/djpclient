@@ -36,19 +36,25 @@ class DJPClientMiddleware(object):
         else:
             if getattr(settings, 'PROFILE_QUERIES', True):
                 actions.TransmitQueries(request,
+                                        simplejson.dumps(kwargs),
                                         queries=connection.queries,
                                         sender=view)
             
             if getattr(settings, 'PROFILE_BENCHMARKS', True):
                 actions.TransmitBenchmark(request,
+                                          simplejson.dumps(kwargs),
                                           exectime, cputime,
                                           sender=view)
             
             if getattr(settings, 'PROFILE_MEMCACHE_STATS', True):
-                actions.TransmitMemcacheStats(request, stats=memory.GetAggregateMemcacheStats(), sender=view)
+                actions.TransmitMemcacheStats(request,
+                                              simplejson.dumps(kwargs),
+                                              stats=memory.GetAggregateMemcacheStats(), sender=view)
             
             if getattr(settings, 'PROFILE_USER_ACTIVITY', True):
-                actions.TransmitUserActivity(request, sender=view)
+                actions.TransmitUserActivity(request,
+                                             simplejson.dumps(kwargs),
+                                             sender=view)
         
         return response
 

@@ -7,9 +7,12 @@ from datetime import datetime
 
 import pdb
 
-def SendQueries(queries, name, is_view):
+def SendQueries(kwargs, requestargs, queries, name, is_view):
     for query in queries:
-        values = {'appusername': appsettings.APP_USERNAME,
+        values = {'kwargs': kwargs,
+                  'requestargs': requestargs,
+                  
+                  'appusername': appsettings.APP_USERNAME,
                   'appname': appsettings.APP_NAME,
                   'name': name,
                   'is_view': is_view,
@@ -26,8 +29,11 @@ def SendQueries(queries, name, is_view):
         print 'query endpoint response: ', resp
 
 
-def SendBenchmark(exectime, cputime, viewname, is_view=True):
-    values = {'appusername': appsettings.APP_USERNAME,
+def SendBenchmark(kwargs, requestargs, exectime, cputime, viewname, is_view=True):
+    values = {'kwargs': kwargs,
+              'requestargs': requestargs,
+              
+              'appusername': appsettings.APP_USERNAME,
               'appname': appsettings.APP_NAME,
               'name': viewname,
               'is_view': is_view,
@@ -42,8 +48,11 @@ def SendBenchmark(exectime, cputime, viewname, is_view=True):
     print 'benchmark endpoint response: ', resp
 
 
-def SendMemcacheStat(statobj, name, is_view):
-    values = {'appusername': appsettings.APP_USERNAME,
+def SendMemcacheStat(kwargs, requestargs, statobj, name, is_view):
+    values = {'kwargs': kwargs,
+              'requestargs': requestargs,
+              
+              'appusername': appsettings.APP_USERNAME,
               'appname': appsettings.APP_NAME,
               'name': name,
               'is_view': is_view,
@@ -67,8 +76,11 @@ def SendMemcacheStat(statobj, name, is_view):
     print 'memcachestats endpoint response: ', resp
 
 
-def SendUserActivity(is_anonymous, username, userid, useremail, name, is_view):
-    values = {'appusername': appsettings.APP_USERNAME,
+def SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view):
+    values = {'kwargs': kwargs,
+              'requestargs': requestargs,
+              
+              'appusername': appsettings.APP_USERNAME,
               'appname': appsettings.APP_NAME,
               'name': name,
               'is_view': is_view,
@@ -87,13 +99,14 @@ def SendUserActivity(is_anonymous, username, userid, useremail, name, is_view):
     print 'useractivity endpoint response: ', resp
 
 
-def SendUserConversion(is_anonymous, username, userid, useremail, name, is_view,
+def SendUserConversion(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view,
                        conversion_value=1.0, conversion_economic_value=0.0):
     raise Exception('not implemented yet')
 
 
-def SendBundle(kwargs, querydata, exectime, cputime, statobj, is_anonymous, username, userid, useremail, name, is_view=True):
+def SendBundle(kwargs, requestargs, querydata, exectime, cputime, statobj, is_anonymous, username, userid, useremail, name, is_view=True):
     values = {'kwargs': kwargs,
+              'requestargs': requestargs,
               'appusername': appsettings.APP_USERNAME,
               'appname': appsettings.APP_NAME,
               'name': name,
