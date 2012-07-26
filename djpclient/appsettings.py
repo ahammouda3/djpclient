@@ -4,7 +4,7 @@ WARNING:
     nothing in this module should be changed; instead interact with settings.py
     and refer to the documentation at: http://djangoperformance.com/docs/
 """
-DEBUG = True
+DEBUG = False
 
 from django.conf import settings
 
