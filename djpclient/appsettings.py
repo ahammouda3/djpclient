@@ -10,20 +10,20 @@ from django.conf import settings
 
 API_VERSION = 'v1'
 
-APP_USERNAME = getattr(settings, 'PROFILE_APP_USERNAME', None)
-APP_NAME = getattr(settings, 'PROFILE_APP_NAME', None)
-API_KEY = getattr(settings, 'PROFILE_API_KEY', None)
+APP_USERNAME = getattr(settings, 'DJP_APP_USERNAME', None)
+APP_NAME = getattr(settings, 'DJP_APP_NAME', None)
+API_KEY = getattr(settings, 'DJP_API_KEY', None)
 
 
 if not APP_USERNAME:
-    raise Exception("Django profiler client: Missing PROFILE_APP_USERNAME from your settings.py file")
+    raise Exception("Django profiler client: Missing DJP_APP_USERNAME from your settings.py file")
 if not APP_NAME:
-    raise Exception("Django profiler client: Missing PROFILE_APP_NAME from your settings.py file")
+    raise Exception("Django profiler client: Missing DJP_APP_NAME from your settings.py file")
 if not API_KEY:
-    raise Exception("Django profiler client: Missing PROFILE_API_KEY from your settings.py file")
+    raise Exception("Django profiler client: Missing DJP_API_KEY from your settings.py file")
 
 
-SEND_ASYNC = getattr(settings, 'PROFILE_SEND_ASYNC', False)
+SEND_ASYNC = getattr(settings, 'DJP_SEND_ASYNC', False)
 BUNDLE_DATA = getattr(settings, 'USE_BUNDLED_ENDPOINT', True)
 
 if DEBUG:
