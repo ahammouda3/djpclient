@@ -32,7 +32,7 @@ def profile(fn):
                                         simplejson.dumps(connection.queries),
                                         exectime, cputime,
                                         memory.GetAggregateMemcacheStats(),
-                                        sender=view)
+                                        sender=fn)
         else:
             if getattr(settings, 'PROFILE_QUERIES', True):
                 actions.TransmitQueries(request, kwargs,
@@ -74,7 +74,7 @@ def profile_components(components=[]):
                 response = func(request, *args, **kwargs)
                 exectime = timer.stop()
                 cput2 = time.clock()
-        
+                
                 cputime = cput2 - cput1
                 
                 actions.TransmitBenchmark(request, kwargs, exectime=exectime, cputime=cputime, sender=func)
