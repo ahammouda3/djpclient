@@ -142,3 +142,9 @@ def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sen
         send.SendBundle(CleanKwargs(kwargs), requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
 
 
+def TransmitLogMessage(record):
+    if appsettings.SEND_ASYNC:
+        tasks.SendLogMessage(record)
+    else:
+        send.SendLogMessage(record)
+

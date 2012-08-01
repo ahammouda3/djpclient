@@ -42,3 +42,5 @@ USER_CONVERSION_ENDPOINT = '%s/api/%s/userconversion/?%s' % (BASE_URL, API_VERSI
 
 BUNDLED_DATA_ENDPOINT = '%s/api/%s/clientappdata/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)
 
+LOG_MESSAGE_ENDPOINT = '%s/api/%s/logmessage/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)
+

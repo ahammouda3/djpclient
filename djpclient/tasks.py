@@ -23,3 +23,8 @@ def SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, userem
 @task(name="tasks.SendBundle")
 def SendBundle(kwargs, requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name):
     send.SendBundle(kwargs, requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
+
+@task(name='tasks.SendSendLogMessage')
+def SendLogMessage(record):
+    send.SendLogMessage(record)
+

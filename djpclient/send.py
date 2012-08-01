@@ -21,12 +21,13 @@ def SendQueries(kwargs, requestargs, queries, name, is_view):
                   'sql': query['sql'],
                   'execution_time': query['time'],
                   }
-        print 'sending query to %s' % appsettings.QUERY_ENDPOINT
         
         resp = requests.post(appsettings.QUERY_ENDPOINT,
                              data=simplejson.dumps(values),
                              headers={'content-type': 'application/json'})
-        print 'query endpoint response: ', resp
+        
+        if appsettings.DEBUG:
+            print 'query endpoint response: ', resp
 
 
 def SendBenchmark(kwargs, requestargs, exectime, cputime, viewname, is_view=True):
@@ -45,7 +46,8 @@ def SendBenchmark(kwargs, requestargs, exectime, cputime, viewname, is_view=True
                          data=simplejson.dumps(values),
                          headers={'content-type': 'application/json'})
     
-    print 'benchmark endpoint response: ', resp
+    if appsettings.DEBUG:
+        print 'benchmark endpoint response: ', resp
 
 
 def SendMemcacheStat(kwargs, requestargs, statobj, name, is_view):
@@ -73,7 +75,8 @@ def SendMemcacheStat(kwargs, requestargs, statobj, name, is_view):
                          data=simplejson.dumps(values),
                          headers={'content-type': 'application/json'})
     
-    print 'memcachestats endpoint response: ', resp
+    if appsettings.DEBUG:
+        print 'memcachestats endpoint response: ', resp
 
 
 def SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view):
@@ -96,7 +99,8 @@ def SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, userem
                          data=simplejson.dumps(values),
                          headers={'content-type': 'application/json'})
     
-    print 'useractivity endpoint response: ', resp
+    if appsettings.DEBUG:
+        print 'useractivity endpoint response: ', resp
 
 
 def SendUserConversion(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view,
@@ -138,6 +142,29 @@ def SendBundle(kwargs, requestargs, querydata, exectime, cputime, statobj, is_an
                          data=simplejson.dumps(values),
                          headers={'content-type': 'application/json'})
     
-    print 'bundled endpoint response: ', resp
+    if appsettings.DEBUG:
+        print 'bundled endpoint response: ', resp
+
+
+def SendLogMessage(record):
+    values = {'appusername': appsettings.APP_USERNAME,
+              'appname': appsettings.APP_NAME,
+              
+              'message': record.msg % record.args,
+              'function_name': record.funcName,
+              'logger_name': record.name,
+              'level': record.levelname,
+              'lineno': str(record.lineno),
+              'module_name': record.module,
+              
+              'submission_timestamp': str(datetime.now()),
+              }
+    
+    resp = requests.post(appsettings.LOG_MESSAGE_ENDPOINT,
+                         data=simplejson.dumps(values),
+                         headers={'content-type': 'application/json'})
+    
+    if appsettings.DEBUG:
+        print 'log message endpoint response: ', resp
 
 
