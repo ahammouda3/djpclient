@@ -15,6 +15,7 @@ import pdb
 
 class DJPClientMiddleware(object):
     def process_view(self, request, view, args, kwargs):
+        
         logger.info('profile wrapper called')
         timer = stopwatch.Timer()
         
