@@ -23,13 +23,18 @@ if not API_KEY:
     raise Exception("Django profiler client: Missing DJP_API_KEY from your settings.py file")
 
 
-SEND_ASYNC = getattr(settings, 'DJP_SEND_ASYNC', False)
+SEND_IN_CELERY_QUEUE = getattr(settings, 'DJP_SEND_IN_CELERY_QUEUE', False)
+SEND_DELAY = getattr(settings, 'DJP_SEND_DELAY', 1.0)
+
+
 BUNDLE_DATA = getattr(settings, 'USE_BUNDLED_ENDPOINT', True)
 
 if DEBUG:
     BASE_URL = 'http://localhost:8000'
 else:
     BASE_URL = 'http://www.djangoperformance.com'
+
+
 
 
 CREDENTIALS = 'username=%s&api_key=%s' % (APP_USERNAME, API_KEY)

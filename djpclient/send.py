@@ -4,8 +4,28 @@ from django.utils import simplejson
 import appsettings
 import requests
 from datetime import datetime
+from threading import Timer
 
 import pdb
+
+def _makerequest(data, endpoint):
+    print 'making request'
+    resp = requests.post(endpoint, data=simplejson.dumps(data),
+                         headers={'content-type': 'application/json'})
+    
+    if appsettings.DEBUG:
+        print 'endpoint %s response: %s' % (endpoint, str(resp))
+    
+    return resp
+
+
+def SendData(data, endpoint):
+    if not appsettings.SEND_IN_CELERY_QUEUE:
+        t = Timer(appsettings.SEND_DELAY, _makerequest, args=(data, endpoint))
+        t.start()
+    else:
+        _makerequest(data, endpoint)
+
 
 def SendQueries(kwargs, requestargs, queries, name, is_view):
     for query in queries:
@@ -22,12 +42,7 @@ def SendQueries(kwargs, requestargs, queries, name, is_view):
                   'execution_time': query['time'],
                   }
         
-        resp = requests.post(appsettings.QUERY_ENDPOINT,
-                             data=simplejson.dumps(values),
-                             headers={'content-type': 'application/json'})
-        
-        if appsettings.DEBUG:
-            print 'query endpoint response: ', resp
+        SendData(values, appsettings.QUERY_ENDPOINT)
 
 
 def SendBenchmark(kwargs, requestargs, exectime, cputime, viewname, is_view=True):
@@ -42,12 +57,9 @@ def SendBenchmark(kwargs, requestargs, exectime, cputime, viewname, is_view=True
               'execution_time': exectime,
               'cpu_time': cputime
               }
-    resp = requests.post(appsettings.BENCHMARK_ENDPOINT,
-                         data=simplejson.dumps(values),
-                         headers={'content-type': 'application/json'})
     
-    if appsettings.DEBUG:
-        print 'benchmark endpoint response: ', resp
+    SendData(values, appsettings.BENCHMARK_ENDPOINT)
+
 
 
 def SendMemcacheStat(kwargs, requestargs, statobj, name, is_view):
@@ -71,12 +83,8 @@ def SendMemcacheStat(kwargs, requestargs, statobj, name, is_view):
               'set_commands': statobj.cmd_set
               }
     
-    resp = requests.post(appsettings.MEMCACHESTAT_ENDPOINT,
-                         data=simplejson.dumps(values),
-                         headers={'content-type': 'application/json'})
-    
-    if appsettings.DEBUG:
-        print 'memcachestats endpoint response: ', resp
+    SendData(values, appsettings.MEMCACHESTAT_ENDPOINT)
+
 
 
 def SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view):
@@ -95,12 +103,8 @@ def SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, userem
               'websiteuseremail': useremail,
               }
     
-    resp = requests.post(appsettings.USER_ACTIVITY_ENDPOINT,
-                         data=simplejson.dumps(values),
-                         headers={'content-type': 'application/json'})
-    
-    if appsettings.DEBUG:
-        print 'useractivity endpoint response: ', resp
+    SendData(values, appsettings.USER_ACTIVITY_ENDPOINT)
+
 
 
 def SendUserConversion(kwargs, requestargs, is_anonymous, username, userid, useremail, name, is_view,
@@ -138,12 +142,7 @@ def SendBundle(kwargs, requestargs, querydata, exectime, cputime, statobj, is_an
               'websiteuseremail': useremail,
               }
     
-    resp = requests.post(appsettings.BUNDLED_DATA_ENDPOINT,
-                         data=simplejson.dumps(values),
-                         headers={'content-type': 'application/json'})
-    
-    if appsettings.DEBUG:
-        print 'bundled endpoint response: ', resp
+    SendData(values, appsettings.BUNDLED_DATA_ENDPOINT)
 
 
 def SendLogMessage(record):
@@ -160,11 +159,6 @@ def SendLogMessage(record):
               'submission_timestamp': str(datetime.now()),
               }
     
-    resp = requests.post(appsettings.LOG_MESSAGE_ENDPOINT,
-                         data=simplejson.dumps(values),
-                         headers={'content-type': 'application/json'})
-    
-    if appsettings.DEBUG:
-        print 'log message endpoint response: ', resp
+    SendData(values, appsettings.LOG_MESSAGE_ENDPOINT)
 
 

@@ -45,7 +45,7 @@ def TransmitQueries(request, kwargs, queries, sender=None, name=''):
     
     requestargs = simplejson.dumps(dict(request.GET))
     
-    if appsettings.SEND_ASYNC:
+    if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendQueriesTask.delay(CleanKwargs(kwargs), requestargs, queries, name, is_view)
     else:
         send.SendQueries(CleanKwargs(kwargs), requestargs, queries, name, is_view)
@@ -64,7 +64,7 @@ def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name=''):
     
     requestargs = simplejson.dumps(dict(request.GET))
     
-    if appsettings.SEND_ASYNC:
+    if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendBenchmarkTask.delay(CleanKwargs(kwargs), requestargs, exectime, cputime, name, is_view)
     else:
         send.SendBenchmark(CleanKwargs(kwargs), requestargs, exectime, cputime, name, is_view)
@@ -90,7 +90,7 @@ def TransmitMemcacheStats(request, kwargs, stats, sender=None, name=''):
         if stat is None or stat.__class__.__name__ != 'MemcachedStats':
             continue
         
-        if appsettings.SEND_ASYNC:
+        if appsettings.SEND_IN_CELERY_QUEUE:
             tasks.SendMemcacheStat.delay(CleanKwargs(kwargs), requestargs, stat, name, is_view)
         else:
             send.SendMemcacheStat(CleanKwargs(kwargs), requestargs, stat, name, is_view)
@@ -115,7 +115,7 @@ def TransmitUserActivity(request, kwargs, sender=None, name=''):
     
     requestargs = simplejson.dumps(dict(request.GET))
     
-    if appsettings.SEND_ASYNC:
+    if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendUserActivity(CleanKwargs(kwargs), requestargs, is_anonymous, username, userid, useremail, name, is_view)
     else:
         send.SendUserActivity(CleanKwargs(kwargs), requestargs, is_anonymous, username, userid, useremail, name, is_view)
@@ -136,14 +136,14 @@ def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sen
     
     requestargs = simplejson.dumps(dict(request.GET))
     
-    if appsettings.SEND_ASYNC:
+    if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendBundle.delay(CleanKwargs(kwargs), requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
     else:
         send.SendBundle(CleanKwargs(kwargs), requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name)
 
 
 def TransmitLogMessage(record):
-    if appsettings.SEND_ASYNC:
+    if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendLogMessage(record)
     else:
         send.SendLogMessage(record)
