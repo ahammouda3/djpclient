@@ -40,9 +40,6 @@ def SendQueries(kwargs, requestargs, queries, name, ga_cookie, ga_exp_time, is_v
                   
                   'sql': query['sql'],
                   'execution_time': query['time'],
-                  
-                  'ga_id': ga_cookie,
-                  'ga_expiration_time': str(ga_exp_time),
                   }
         
         SendData(values, appsettings.QUERY_ENDPOINT)
@@ -58,10 +55,7 @@ def SendBenchmark(kwargs, requestargs, exectime, cputime, viewname, ga_cookie, g
               'is_view': is_view,
               'submission_timestamp': str(datetime.now()),
               'execution_time': exectime,
-              'cpu_time': cputime,
-              
-              'ga_id': ga_cookie,
-              'ga_expiration_time': str(ga_exp_time),
+              'cpu_time': cputime
               }
     
     SendData(values, appsettings.BENCHMARK_ENDPOINT)
@@ -86,10 +80,7 @@ def SendMemcacheStat(kwargs, requestargs, statobj, name, ga_cookie, ga_exp_time,
               'hits': statobj.get_hits,
               'misses': statobj.get_misses,
               'get_commands': statobj.cmd_get,
-              'set_commands': statobj.cmd_set,
-              
-              'ga_id': ga_cookie,
-              'ga_expiration_time': str(ga_exp_time),
+              'set_commands': statobj.cmd_set
               }
     
     SendData(values, appsettings.MEMCACHESTAT_ENDPOINT)
@@ -110,9 +101,6 @@ def SendUserActivity(kwargs, requestargs, is_anonymous, username, userid, userem
               'websiteuserid': str(userid),
               'websiteusername': username,
               'websiteuseremail': useremail,
-              
-              'ga_id': ga_cookie,
-              'ga_expiration_time': str(ga_exp_time),
               }
     
     SendData(values, appsettings.USER_ACTIVITY_ENDPOINT)
@@ -153,9 +141,6 @@ def SendBundle(kwargs, requestargs, querydata, exectime, cputime, statobj, is_an
               'websiteuserid': str(userid),
               'websiteusername': username,
               'websiteuseremail': useremail,
-              
-              'ga_id': ga_cookie,
-              'ga_expiration_time': str(ga_exp_time),
               }
     
     SendData(values, appsettings.BUNDLED_DATA_ENDPOINT)
