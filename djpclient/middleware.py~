@@ -5,7 +5,7 @@ from django.utils import simplejson
 
 import appsettings
 import memory, actions
-import User
+from gaclient.models import User
 
 import stopwatch, time, pdb, datetime
 
