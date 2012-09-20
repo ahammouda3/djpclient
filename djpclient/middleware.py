@@ -1,11 +1,11 @@
-
+from django.http import HttpResponse
 from django.conf import settings
 from django.db import connection
 from django.utils import simplejson
 
 import appsettings
 import memory, actions
-import User
+from djpclient.models import User
 
 import stopwatch, time, pdb, datetime
 
@@ -62,12 +62,13 @@ class DJPClientMiddleware(object):
             '''
             now=datetime.datetime.now()
             lifetime=( datetime.datetime(now.year, now.month, now.day +1, 0) - now ).total_seconds()
-            new_user = User(creation_time=now,expiration_time=lifetime )
+            new_user = User(creation_time=now,expiration_time=lifetime ) #Change to User.objects.create(params*) if time
             new_user.save()
 
             request.session.__setitem__('ga-report-id', new_user.analytics_id)
             request.session.set_expiry( lifetime )
-        
+            
+
         if appsettings.BUNDLE_DATA:
             actions.TransmitBundledData(request, kwargs,
                                         simplejson.dumps(connection.queries),
@@ -79,7 +80,7 @@ class DJPClientMiddleware(object):
                 actions.TransmitQueries(request, kwargs,
                                         queries=connection.queries,
                                         sender=view)
-            
+                
             if getattr(settings, 'PROFILE_BENCHMARKS', True):
                 actions.TransmitBenchmark(request, kwargs,
                                           exectime, cputime,
@@ -93,7 +94,7 @@ class DJPClientMiddleware(object):
             if getattr(settings, 'PROFILE_USER_ACTIVITY', True):
                 actions.TransmitUserActivity(request, kwargs,
                                              sender=view)
-        
+
         return response
     
     def process_response(self, request, response):
@@ -110,10 +111,10 @@ class DJPClientMiddleware(object):
         
         content = response.content
         index = content.find(appsettings.GA_JS_PLACEHOLDER)
+        
         if index < 0:
             return response
         newcontent = content.replace(appsettings.GA_JS_PLACEHOLDER, 
                                      self.tracking_script_template %(appsettings.GA_PROFILE_ID, request.session['ga-report-id'] )
                                      )
-        return HttpResponse(newcontent)
-
+        return HttpResponse(content=newcontent)

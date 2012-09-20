@@ -9,7 +9,6 @@ from threading import Timer
 import pdb
 
 def _makerequest(data, endpoint):
-    print 'making request'
     resp = requests.post(endpoint, data=simplejson.dumps(data),
                          headers={'content-type': 'application/json'})
     
@@ -27,7 +26,8 @@ def SendData(data, endpoint):
         _makerequest(data, endpoint)
 
 
-def SendQueries(kwargs, requestargs, queries, name, ga_cookie, ga_exp_time, is_view):
+def SendQueries(kwargs, requestargs, queries, name, is_view,
+                ga_cookie, ga_exp_time):
     for query in queries:
         values = {'kwargs': kwargs,
                   'requestargs': requestargs,
@@ -154,10 +154,10 @@ def SendBundle(kwargs, requestargs, querydata, exectime, cputime, statobj, is_an
               'websiteusername': username,
               'websiteuseremail': useremail,
               
-              'ga_id': ga_cookie,
+              'ga_id': ga_id,
               'ga_expiration_time': str(ga_exp_time),
               }
-    
+
     SendData(values, appsettings.BUNDLED_DATA_ENDPOINT)
 
 

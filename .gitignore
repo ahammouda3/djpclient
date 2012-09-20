@@ -1,5 +1,6 @@
 *.pyo
 *.pyc
+*~
 venv
 build
 lib
@@ -9,4 +10,4 @@ include
 .settings
 dist
 djpclient.egg-info
-
+__init__*

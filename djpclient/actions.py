@@ -1,4 +1,3 @@
-
 from django.utils import simplejson
 
 import urllib, urllib2
@@ -9,6 +8,7 @@ from datetime import datetime
 
 import tasks, send
 
+from decimal import Decimal
 import logging
 logger = logging.getLogger(__name__)
 
@@ -42,17 +42,15 @@ def TransmitQueries(request, kwargs, queries, sender=None, name=''):
         is_view = True
     else:
         is_view = False
-        
-    requestargs = simplejson.dumps(dict(request.GET))
-    
+
     if appsettings.SEND_IN_CELERY_QUEUE:
-        tasks.SendQueriesTask.delay(CleanKwargs(kwargs), requestargs, queries, name, is_view,
-                                    ga_exp_time=request.session.get_expiry_date(),
+        tasks.SendQueriesTask.delay(CleanKwargs(kwargs), requestargs, queries, name, is_view=is_view,
+                                    ga_exp_time=ga_expiration_time,
                                     ga_cookie=request.session['ga-report-id'] )
     else:
-        send.SendQueries(CleanKwargs(kwargs), requestargs, queries, name, is_view,
-                         ga_exp_time=request.session.get_expiry_date(),
-                         ga_cookie=request.session['ga-report-id'] )
+        send.SendQueries(CleanKwargs(kwargs), requestargs, queries, name, is_view=is_view,
+                         ga_exp_time=ga_expiration_time,
+                         ga_cookie=cookie )
 
 
 def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name=''):
@@ -67,14 +65,16 @@ def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name=''):
         is_view = False
     
     requestargs = simplejson.dumps(dict(request.GET))
+    ga_expiration_time = Decimal(request.session.get_expiry_age())
     
     if appsettings.SEND_IN_CELERY_QUEUE:
-        tasks.SendBenchmarkTask.delay(CleanKwargs(kwargs), requestargs, exectime, cputime, name, is_view,
-                                      ga_exp_time=request.session.get_expiry_date(),
+        tasks.SendBenchmarkTask.delay(CleanKwargs(kwargs), requestargs, exectime, cputime, name, is_view=is_view,
+                                      ga_exp_time=ga_expiration_time,
                                       ga_cookie=request.session['ga-report-id'] )
     else:
-        send.SendBenchmark(CleanKwargs(kwargs), requestargs, exectime, cputime, name, is_view,
-                           ga_exp_time=request.session.get_expiry_date(),
+        #view = is_view
+        send.SendBenchmark(CleanKwargs(kwargs), requestargs, exectime, cputime, name, is_view=is_view,
+                           ga_exp_time=ga_expiration_time,
                            ga_cookie=request.session['ga-report-id'] ) 
 
 
@@ -93,18 +93,19 @@ def TransmitMemcacheStats(request, kwargs, stats, sender=None, name=''):
         is_view = False
     
     requestargs = simplejson.dumps(dict(request.GET))
-    
+    ga_expiration_time = Decimal(request.session.get_expiry_age())
+
     for stat in stats:
         if stat is None or stat.__class__.__name__ != 'MemcachedStats':
             continue
         
         if appsettings.SEND_IN_CELERY_QUEUE:
-            tasks.SendMemcacheStat.delay(CleanKwargs(kwargs), requestargs, stat, name, is_view,
-                                         ga_exp_time=request.session.get_expiry_date(),
+            tasks.SendMemcacheStat.delay(CleanKwargs(kwargs), requestargs, stat, name, is_view=is_view,
+                                         ga_exp_time=ga_expiration_time,
                                          ga_cookie=request.session['ga-report-id'] ) 
         else:
             send.SendMemcacheStat(CleanKwargs(kwargs), requestargs, stat, name, is_view,
-                                  ga_exp_time=request.session.get_expiry_date(),
+                                  ga_exp_time=ga_expiration_time,
                                   ga_cookie=request.session['ga-report-id'] ) 
 
 
@@ -126,14 +127,15 @@ def TransmitUserActivity(request, kwargs, sender=None, name=''):
         useremail = request.user.email
     
     requestargs = simplejson.dumps(dict(request.GET))
-    
+    ga_expiration_time = Decimal(request.session.get_expiry_age())
+
     if appsettings.SEND_IN_CELERY_QUEUE:
-        tasks.SendUserActivity(CleanKwargs(kwargs), requestargs, is_anonymous, username, userid, useremail, name, is_view,
-                               ga_exp_time=request.session.get_expiry_date(),
+        tasks.SendUserActivity(CleanKwargs(kwargs), requestargs, is_anonymous, username, userid, useremail, name, is_view=is_view,
+                               ga_exp_time=ga_expiration_time,
                                ga_cookie=request.session['ga-report-id'] ) 
     else:
-        send.SendUserActivity(CleanKwargs(kwargs), requestargs, is_anonymous, username, userid, useremail, name, is_view,
-                              ga_exp_time=request.session.get_expiry_date(),
+        send.SendUserActivity(CleanKwargs(kwargs), requestargs, is_anonymous, username, userid, useremail, name, is_view=is_view,
+                              ga_exp_time=ga_expiration_time,
                               ga_cookie=request.session['ga-report-id'] ) 
 
 
@@ -151,15 +153,17 @@ def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sen
         useremail = request.user.email
     
     requestargs = simplejson.dumps(dict(request.GET))
+    ga_expiration_time = Decimal(request.session.get_expiry_age())
     
     if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendBundle.delay(CleanKwargs(kwargs), requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name,
-                               ga_exp_time=request.session.get_expiry_date(),
+                               ga_exp_time=ga_expiration_time,
                                ga_cookie=request.session['ga-report-id'] ) 
     else:
         send.SendBundle(CleanKwargs(kwargs), requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name,
-                        ga_exp_time=request.session.get_expiry_date(),
+                        ga_exp_time=ga_expiration_time,
                         ga_cookie=request.session['ga-report-id'] ) 
+        
 
 
 def TransmitLogMessage(record):
