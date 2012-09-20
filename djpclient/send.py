@@ -154,7 +154,7 @@ def SendBundle(kwargs, requestargs, querydata, exectime, cputime, statobj, is_an
               'websiteusername': username,
               'websiteuseremail': useremail,
               
-              'ga_id': ga_id,
+              'ga_id': ga_cookie,
               'ga_expiration_time': str(ga_exp_time),
               }
 
