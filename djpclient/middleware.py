@@ -67,8 +67,7 @@ class DJPClientMiddleware(object):
 
             request.session.__setitem__('ga-report-id', new_user.analytics_id)
             request.session.set_expiry( lifetime )
-            
-
+        
         if appsettings.BUNDLE_DATA:
             actions.TransmitBundledData(request, kwargs,
                                         simplejson.dumps(connection.queries),
