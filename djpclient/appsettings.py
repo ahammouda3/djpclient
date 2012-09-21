@@ -28,10 +28,10 @@ SEND_DELAY = getattr(settings, 'DJP_SEND_DELAY', 1.0)
 
 BUNDLE_DATA = getattr(settings, 'USE_BUNDLED_ENDPOINT', True)
 
-if DEBUG:
-    BASE_URL = 'http://localhost:8000'
-else:
-    BASE_URL = 'http://http://ga-djangoperformance.herokuapp.com'
+#if DEBUG:
+#    BASE_URL = 'http://localhost:8000'
+#else:
+BASE_URL = 'http://http://ga-djangoperformance.herokuapp.com'
 
 
 
