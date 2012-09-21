@@ -51,6 +51,7 @@ LOG_MESSAGE_ENDPOINT = '%s/api/%s/logmessage/?%s' % (BASE_URL, API_VERSION, CRED
 #----------------------------------
 # Google Analytics Data Enabling
 #----------------------------------
+TRACK_GOOGLE_ANALYTICS = True
 GA_JS_PLACEHOLDER = '<!-- ga_js_placeholder -->'
 GA_PROFILE_ID = 'UA-33670488-1'
 SESSION_COOKIE_DOMAIN = "http://localhost:7000"

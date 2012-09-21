@@ -51,22 +51,23 @@ class DJPClientMiddleware(object):
         exectime = timer.stop()
         cput2 = time.clock()
         cputime = cput2 - cput1
-
-        if not request.session.get('ga-report-id'):
-            '''
-            Create Reporting Id to be injected into ga.js in process_response,
-            and save it as a session variable on a day by day basis.
-
-            The session data now gets passed to transmit functions
-            through the request object.
-            '''
-            now=datetime.datetime.now()
-            lifetime=( datetime.datetime(now.year, now.month, now.day +1, 0) - now ).total_seconds()
-            new_user = User(creation_time=now,expiration_time=lifetime ) #Change to User.objects.create(params*) if time
-            new_user.save()
-
-            request.session.__setitem__('ga-report-id', new_user.analytics_id)
-            request.session.set_expiry( lifetime )
+        
+        if appsettings.TRACK_GOOGLE_ANALYTICS:
+            if not request.session.get('ga-report-id'):
+                '''
+                Create Reporting Id to be injected into ga.js in process_response,
+                and save it as a session variable on a day by day basis.
+                
+                The session data now gets passed to transmit functions
+                through the request object.
+                '''
+                now=datetime.datetime.now()
+                lifetime=( datetime.datetime(now.year, now.month, now.day +1, 0) - now ).total_seconds()
+                new_user = User(creation_time=now,expiration_time=lifetime ) #Change to User.objects.create(params*) if time
+                new_user.save()
+                
+                request.session.__setitem__('ga-report-id', new_user.analytics_id)
+                request.session.set_expiry( lifetime )
         
         if appsettings.BUNDLE_DATA:
             actions.TransmitBundledData(request, kwargs,
@@ -108,12 +109,15 @@ class DJPClientMiddleware(object):
         # Also need to look into persistence of session-vars as a user navigates around a site
         # ....
         
-        content = response.content
-        index = content.find(appsettings.GA_JS_PLACEHOLDER)
-        
-        if index < 0:
+        if appsettings.TRACK_GOOGLE_ANALYTICS:
+            content = response.content
+            index = content.find(appsettings.GA_JS_PLACEHOLDER)
+            
+            if index < 0:
+                return response
+            newcontent = content.replace(appsettings.GA_JS_PLACEHOLDER, 
+                                         self.tracking_script_template %(appsettings.GA_PROFILE_ID, request.session['ga-report-id'] )
+                                         )
+            return HttpResponse(content=newcontent)
+        else:
             return response
-        newcontent = content.replace(appsettings.GA_JS_PLACEHOLDER, 
-                                     self.tracking_script_template %(appsettings.GA_PROFILE_ID, request.session['ga-report-id'] )
-                                     )
-        return HttpResponse(content=newcontent)
