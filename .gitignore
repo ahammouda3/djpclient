@@ -10,4 +10,4 @@ include
 .settings
 dist
 djpclient.egg-info
-__init__*
+#__init__*
