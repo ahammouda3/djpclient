@@ -3,7 +3,7 @@ WARNING:
     nothing in this module should be changed; instead interact with settings.py
     and refer to the documentation at: http://djangoperformance.com/docs/
 """
-DEBUG = True
+DEBUG = getattr(settings, DEBUG, False)
 
 from django.conf import settings
 
@@ -51,7 +51,7 @@ LOG_MESSAGE_ENDPOINT = '%s/api/%s/logmessage/?%s' % (BASE_URL, API_VERSION, CRED
 #----------------------------------
 # Google Analytics Data Enabling
 #----------------------------------
-TRACK_GOOGLE_ANALYTICS = True
 GA_JS_PLACEHOLDER = '<!-- ga_js_placeholder -->'
-GA_PROFILE_ID = 'UA-33670488-1'
-SESSION_COOKIE_DOMAIN = "http://localhost:7000"
+TRACK_GOOGLE_ANALYTICS = getattr(settings,TRACK_GOOGLE_ANALYTICS,True)
+GA_PROFILE_ID = getattr(settings,GA_PROFILE_ID)
+SESSION_COOKIE_DOMAIN = getattr(settings,SESSION_COOKIE_DOMAIN)
