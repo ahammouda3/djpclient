@@ -42,7 +42,10 @@ def TransmitQueries(request, kwargs, queries, sender=None, name=''):
         is_view = True
     else:
         is_view = False
-
+    
+    requestargs = simplejson.dumps(dict(request.GET))
+    ga_expiration_time = Decimal(request.session.get_expiry_age())
+    
     if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendQueriesTask.delay(CleanKwargs(kwargs), requestargs, queries, name, is_view=is_view,
                                     ga_exp_time=ga_expiration_time,
