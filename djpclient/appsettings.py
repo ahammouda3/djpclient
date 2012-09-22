@@ -31,7 +31,7 @@ BUNDLE_DATA = getattr(settings, 'USE_BUNDLED_ENDPOINT', True)
 #if DEBUG:
 #    BASE_URL = 'http://localhost:8000'
 #else:
-BASE_URL = 'http://http://ga-djangoperformance.herokuapp.com'
+BASE_URL = 'http://ga-djangoperformance.herokuapp.com'
 
 
 
