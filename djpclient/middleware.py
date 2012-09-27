@@ -59,6 +59,9 @@ class DJPClientMiddleware(object):
         if request.session.session_key is None:
             request.session.flush()
             print request.session.session_key
+        
+        print request.COOKIES
+        print request.session.__dict__
                 
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             try:
@@ -116,6 +119,8 @@ class DJPClientMiddleware(object):
                                              sender=view,
                                              cookie=cookie_val,
                                              ga_expiration_time=cookie_expire)
+        print request.COOKIES
+        print request.session.__dict__
         return response
     
     
@@ -130,6 +135,9 @@ class DJPClientMiddleware(object):
         # Therefore, need to see what kind of access one can have with google analytics custom vars
         # Also need to look into persistence of session-vars as a user navigates around a site
         # ....
+        
+        print request.COOKIES
+        print request.session.__dict__
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             content = response.content
             index = content.find(appsettings.GA_JS_PLACEHOLDER)
