@@ -148,8 +148,8 @@ class DJPClientMiddleware(object):
             if index < 0:
                 return response
             print '--- Before set key --->', request.session.session_key
-            print '--- Before set Cookies --->',  print request.COOKIES, 'request COOKIES ' 
-            print '--- Before set dict --->',  print request.session.__dict__, 'request dict ' 
+            print '--- Before set Cookies --->', request.COOKIES, 'request COOKIES ' 
+            print '--- Before set dict --->',   request.session.__dict__ , 'request dict ' 
             s = Session.objects.get(pk=request.session.session_key)#['_session_key'])
             newcontent = content.replace(
                 appsettings.GA_JS_PLACEHOLDER, 
