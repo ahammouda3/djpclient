@@ -35,8 +35,6 @@ elif getattr(settings, 'CURRENT_ENVIRONMENT')=='STAGING':
 else:
     BASE_URL = 'http://www.djangoperformance.com'
 
-#BASE_URL = 'http://ga-djangoperformance.herokuapp.com'
-
 CREDENTIALS = 'username=%s&api_key=%s' % (APP_USERNAME, API_KEY)
 
 QUERY_ENDPOINT = '%s/api/%s/query/?%s' % (BASE_URL, API_VERSION, CREDENTIALS)

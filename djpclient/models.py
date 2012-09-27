@@ -13,5 +13,5 @@ class User(models.Model):
     creation_time = models.DateTimeField(null=False, default=datetime.now())
     "make it a time delta to prevent end of month failure"
     "This field is the result of calling total_seconds() on a timedelta"
-    #expiration_time = models.DateTimeField(null=False,blank=False)
-    expiration_time = models.DecimalField(null=False, max_digits=20, decimal_places=10)
+    expiration_time = models.DateTimeField(null=False,blank=False)
+    #expiration_time = models.DecimalField(null=False, max_digits=20, decimal_places=10)
