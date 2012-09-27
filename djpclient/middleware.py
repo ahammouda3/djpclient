@@ -142,7 +142,7 @@ class DJPClientMiddleware(object):
         #print '----------sesh key --->',request.session.session_key
         #print request.COOKIES, 'request COOKIES '
         #print request.session.__dict__ , 'request.session dict'
-        print request.COOKIES['sessionid'], '<------------ Begin Process resp'
+        #print request.COOKIES#['sessionid'], '<------------ Begin Process resp'
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             content = response.content
             index = content.find(appsettings.GA_JS_PLACEHOLDER)
@@ -151,10 +151,10 @@ class DJPClientMiddleware(object):
                 return response
             #print '--- Before set key --->', request.session.session_key
             #print '--- Before set Cookies --->', request.COOKIES, 'request COOKIES ' 
-            #print '--- Before set dict --->',   request.session.__dict__ , 'request dict ' 
-            print request.session.__dict__
-            print request.COOKIES, '<------------ Before setting'
-            print request.session.session_key
+            print '--- Before set dict --->',   request.__dict__ , 'request dict ' 
+            print request.session.__dict__, '<-------------- Setting dict (Before setting)'
+            print request.COOKIES, '<------------ Before setting (cookie dict)'
+            print request.session.session_key , '<---session key'
             s = Session.objects.get(pk=request.COOKIES['sessionid'])
             newcontent = content.replace(
                 appsettings.GA_JS_PLACEHOLDER, 
