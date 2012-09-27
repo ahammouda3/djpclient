@@ -68,7 +68,7 @@ class DJPClientMiddleware(object):
                 print type(exp_date)
                 
                 new_user = User.objects.create(creation_time=now,
-                                               expiration_time=exp_date )
+                                               expiration_time=str(exp_date) )
                 
                 s = Session(session_key=request.session.session_key, expire_date=exp_date, 
                             session_data={'ga-report-id':new_user.analytics_id})
