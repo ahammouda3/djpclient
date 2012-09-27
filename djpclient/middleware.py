@@ -58,7 +58,7 @@ class DJPClientMiddleware(object):
         
         print request.session
         print request.session.__dict__
-        print request.__dict__
+        print request.session.get('session_key')
         
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             try:
