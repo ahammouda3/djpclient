@@ -152,8 +152,10 @@ class DJPClientMiddleware(object):
             #print '--- Before set key --->', request.session.session_key
             #print '--- Before set Cookies --->', request.COOKIES, 'request COOKIES ' 
             #print '--- Before set dict --->',   request.session.__dict__ , 'request dict ' 
-            print request.COOKIES['sessionid'], '<------------ Before setting'
-            s = Session.objects.get(pk=request.COOKIES['sessionid']) #session.session_key)
+            print request.session.__dict__
+            print request.COOKIES, '<------------ Before setting'
+            print request.session.session_key
+            s = Session.objects.get(pk=request.COOKIES['sessionid'])
             newcontent = content.replace(
                 appsettings.GA_JS_PLACEHOLDER, 
                 self.tracking_script_template 
