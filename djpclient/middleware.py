@@ -57,12 +57,13 @@ class DJPClientMiddleware(object):
         cookie_expire=''
         
         if request.session.session_key is None:
-            request.session.flush()
-            print '----------->Process view session_key '
-            print '----------->', request.session.session_key
+            if request.COOKIES['sessionid'] is None:
+                request.session.flush()
+                print '----------->Process view: Resetting key'
+                print '----------->', request.session.session_key
         
-        print '-- COOKIES ----------->', request.COOKIES
-        print '-- session dict ----------->',request.session.__dict__
+        print '-- COOKIES ----------->', request.COOKIES['sessionid']
+        #print '-- session dict ----------->',request.session.__dict__
                 
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             try:
@@ -121,8 +122,8 @@ class DJPClientMiddleware(object):
                                              cookie=cookie_val,
                                              ga_expiration_time=cookie_expire)
         print '-------------------> End Of Process Request'
-        print request.COOKIES
-        print request.session.__dict__
+        print request.COOKIES['sessionid']
+        #print request.session.__dict__
         return response
     
     
@@ -137,20 +138,22 @@ class DJPClientMiddleware(object):
         # Therefore, need to see what kind of access one can have with google analytics custom vars
         # Also need to look into persistence of session-vars as a user navigates around a site
         # ....
-        print '-------------------> Begin Process Response'
-        print '----------sesh key --->',request.session.session_key
-        print request.COOKIES, 'request COOKIES '
-        print request.session.__dict__ , 'request.session dict'
+        #print '-------------------> Begin Process Response'
+        #print '----------sesh key --->',request.session.session_key
+        #print request.COOKIES, 'request COOKIES '
+        #print request.session.__dict__ , 'request.session dict'
+        print request.COOKIES['sessionid'], '<------------ Begin Process resp'
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             content = response.content
             index = content.find(appsettings.GA_JS_PLACEHOLDER)
             
             if index < 0:
                 return response
-            print '--- Before set key --->', request.session.session_key
-            print '--- Before set Cookies --->', request.COOKIES, 'request COOKIES ' 
-            print '--- Before set dict --->',   request.session.__dict__ , 'request dict ' 
-            s = Session.objects.get(pk=request.session.session_key)#['_session_key'])
+            #print '--- Before set key --->', request.session.session_key
+            #print '--- Before set Cookies --->', request.COOKIES, 'request COOKIES ' 
+            #print '--- Before set dict --->',   request.session.__dict__ , 'request dict ' 
+            print request.COOKIES['sessionid'], '<------------ Before setting'
+            s = Session.objects.get(pk=request.COOKIES['sessionid']) #session.session_key)
             newcontent = content.replace(
                 appsettings.GA_JS_PLACEHOLDER, 
                 self.tracking_script_template 
