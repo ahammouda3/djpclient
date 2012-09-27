@@ -77,6 +77,8 @@ class DJPClientMiddleware(object):
                 print 'Already been saved as ... ..   :  '
                 cookie_val = ast.literal_eval(s.session_data)['ga-report-id']
                 cookie_expire = s.expire_date
+                print cookie_expire
+                print cookie_val
         
         response = view(request, *args, **kwargs)
         
