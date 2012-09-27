@@ -143,6 +143,7 @@ def TransmitUserActivity(request, kwargs, sender=None, name='',
 
 def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sender,
                         cookie=None, ga_expiration_time=''):
+    
     name = _getviewname(sender)
     
     is_anonymous = not request.user.is_authenticated()

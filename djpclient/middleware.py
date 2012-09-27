@@ -64,21 +64,16 @@ class DJPClientMiddleware(object):
                 now=datetime.datetime.now()
                 lifetime=( datetime.datetime(now.year, now.month, now.day +1, 0) - now )#.total_seconds()
                 exp_date = now + lifetime
-                print exp_date
-                print type(exp_date)
                 
-                new_user = User.objects.create(creation_time=now,
-                                               expiration_time=str(exp_date) )
+                new_user = User.objects.create(creation_time=now)
                 
                 s = Session(session_key=request.session.session_key, expire_date=exp_date, 
                             session_data={'ga-report-id':new_user.analytics_id})
                 s.save()
             else:
-                print 'Already been saved as ... ..   :  '
+                print 'already set .. .. ..'
                 cookie_val = ast.literal_eval(s.session_data)['ga-report-id']
                 cookie_expire = s.expire_date
-                print cookie_expire
-                print cookie_val
         
         response = view(request, *args, **kwargs)
         
@@ -117,8 +112,8 @@ class DJPClientMiddleware(object):
                                              sender=view,
                                              cookie=cookie_val,
                                              ga_expiration_time=cookie_expire)
-        
         return response
+    
     
     def process_response(self, request, response):
         """
@@ -131,7 +126,6 @@ class DJPClientMiddleware(object):
         # Therefore, need to see what kind of access one can have with google analytics custom vars
         # Also need to look into persistence of session-vars as a user navigates around a site
         # ....
-        
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             content = response.content
             index = content.find(appsettings.GA_JS_PLACEHOLDER)
@@ -139,7 +133,7 @@ class DJPClientMiddleware(object):
             if index < 0:
                 return response
             
-            s = Session.objects.get(pk=request.session.session_key)
+            s = Session.objects.get(pk=request.COOKIES['sessionid'])
             newcontent = content.replace(
                 appsettings.GA_JS_PLACEHOLDER, 
                 self.tracking_script_template 
