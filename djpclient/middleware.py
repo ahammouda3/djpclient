@@ -135,7 +135,7 @@ class DJPClientMiddleware(object):
         # Therefore, need to see what kind of access one can have with google analytics custom vars
         # Also need to look into persistence of session-vars as a user navigates around a site
         # ....
-        
+        print request.session.session_key
         print request.COOKIES
         print request.session.__dict__
         if appsettings.TRACK_GOOGLE_ANALYTICS:
@@ -145,7 +145,7 @@ class DJPClientMiddleware(object):
             if index < 0:
                 return response
             
-            s = Session.objects.get(pk=request.COOKIES['sessionid'])
+            s = Session.objects.get(pk=request.session.session_key)#['_session_key'])
             newcontent = content.replace(
                 appsettings.GA_JS_PLACEHOLDER, 
                 self.tracking_script_template 
