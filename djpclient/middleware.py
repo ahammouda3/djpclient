@@ -56,6 +56,10 @@ class DJPClientMiddleware(object):
         cookie_val=None
         cookie_expire=''
         
+        print request.session
+        print request.session.__dict__
+        print request.__dict__
+        
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             try:
                 s = Session.objects.get(pk=request.session.session_key)
