@@ -10,4 +10,4 @@ include
 .settings
 dist
 djpclient.egg-info
-^migrations/[^/]*
+/migrations/*
