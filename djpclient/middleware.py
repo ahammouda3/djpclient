@@ -1,11 +1,13 @@
+import base64, binascii
 from django.http import HttpResponse
 from django.conf import settings
 from django.db import connection
 from django.utils import simplejson
-
+import ast
 import appsettings
 import memory, actions
 from djpclient.models import User
+from djpclient.utils import format_data
 
 import stopwatch, time, pdb, datetime
 
@@ -15,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 "For interacting with sessions outside of views"
 from django.contrib.sessions.backends.db import SessionStore
+from django.contrib.sessions.models import Session
 
 class DJPClientMiddleware(object):
     def __init__(self):
@@ -45,56 +48,74 @@ class DJPClientMiddleware(object):
         timer = stopwatch.Timer()
         
         cput1 = time.clock()
-        
-        response = view(request, *args, **kwargs)
-        
+                        
         exectime = timer.stop()
         cput2 = time.clock()
         cputime = cput2 - cput1
         
+        cookie_val=None
+        cookie_expire=''
+        
         if appsettings.TRACK_GOOGLE_ANALYTICS:
-            if not request.session.get('ga-report-id'):
-                '''
-                Create Reporting Id to be injected into ga.js in process_response,
-                and save it as a session variable on a day by day basis.
-                
-                The session data now gets passed to transmit functions
-                through the request object.
-                '''
+            try:
+                s = Session.objects.get(pk=request.session.session_key)
+            except Exception:
+                print 'New session variable initializing ... '
                 now=datetime.datetime.now()
-                lifetime=( datetime.datetime(now.year, now.month, now.day +1, 0) - now ).total_seconds()
-                new_user = User(creation_time=now,expiration_time=lifetime ) #Change to User.objects.create(params*) if time
-                new_user.save()
+                lifetime=( datetime.datetime(now.year, now.month, now.day +1, 0) - now )#.total_seconds()
+                exp_date = now + lifetime
+                print exp_date
+                print type(exp_date)
                 
-                request.session.__setitem__('ga-report-id', new_user.analytics_id)
-                request.session.set_expiry( lifetime )
+                new_user = User.objects.create(creation_time=now,
+                                               expiration_time=exp_date )
+                
+                s = Session(session_key=request.session.session_key, expire_date=exp_date, 
+                            session_data={'ga-report-id':new_user.analytics_id})
+                s.save()
+            else:
+                print 'Already been saved as ... ..   :  '
+                cookie_val = ast.literal_eval(s.session_data)['ga-report-id']
+                cookie_expire = s.expire_date
+        
+        response = view(request, *args, **kwargs)
         
         if appsettings.BUNDLE_DATA:
             actions.TransmitBundledData(request, kwargs,
                                         simplejson.dumps(connection.queries),
                                         exectime, cputime,
                                         memory.GetAggregateMemcacheStats(),
-                                        sender=view)
+                                        sender=view,
+                                        cookie=cookie_val, 
+                                        ga_expiration_time=cookie_expire)
         else:
             if getattr(settings, 'PROFILE_QUERIES', True):
                 actions.TransmitQueries(request, kwargs,
                                         queries=connection.queries,
-                                        sender=view)
+                                        sender=view,
+                                        cookie=cookie_val, 
+                                        ga_expiration_time=cookie_expire)
                 
             if getattr(settings, 'PROFILE_BENCHMARKS', True):
                 actions.TransmitBenchmark(request, kwargs,
                                           exectime, cputime,
-                                          sender=view)
+                                          sender=view,
+                                          cookie=cookie_val, 
+                                          ga_expiration_time=cookie_expire)
             
             if getattr(settings, 'PROFILE_MEMCACHE_STATS', True):
                 actions.TransmitMemcacheStats(request, kwargs,
                                               stats=memory.GetAggregateMemcacheStats(),
-                                              sender=view)
+                                              sender=view,
+                                              cookie=cookie_val, 
+                                              ga_expiration_time=cookie_expire)
             
             if getattr(settings, 'PROFILE_USER_ACTIVITY', True):
                 actions.TransmitUserActivity(request, kwargs,
-                                             sender=view)
-
+                                             sender=view,
+                                             cookie=cookie_val,
+                                             ga_expiration_time=cookie_expire)
+        
         return response
     
     def process_response(self, request, response):
@@ -115,9 +136,14 @@ class DJPClientMiddleware(object):
             
             if index < 0:
                 return response
-            newcontent = content.replace(appsettings.GA_JS_PLACEHOLDER, 
-                                         self.tracking_script_template %(appsettings.GA_PROFILE_ID, request.session['ga-report-id'] )
-                                         )
+            
+            s = Session.objects.get(pk=request.session.session_key)
+            newcontent = content.replace(
+                appsettings.GA_JS_PLACEHOLDER, 
+                self.tracking_script_template 
+                %(appsettings.GA_PROFILE_ID, ast.literal_eval(s.session_data)['ga-report-id'])
+                )
             return HttpResponse(content=newcontent)
         else:
             return response
+        

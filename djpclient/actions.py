@@ -32,7 +32,8 @@ def CleanKwargs(kwargs):
     return simplejson.dumps(cleankwargs)
 
 
-def TransmitQueries(request, kwargs, queries, sender=None, name=''):
+def TransmitQueries(request, kwargs, queries, sender=None, name='',
+                    cookie=None, ga_expiration_time=''):
     "Sends query data to server"
     if queries is None:
         return
@@ -44,14 +45,7 @@ def TransmitQueries(request, kwargs, queries, sender=None, name=''):
         is_view = False
     
     requestargs = simplejson.dumps(dict(request.GET))
-    
-    if appsettings.TRACK_GOOGLE_ANALYTICS:
-        cookie = request.session['ga-report-id']
-        ga_expiration_time = Decimal(request.session.get_expiry_age())
-    else:
-        cookie=None
-        ga_expiration_time=''
-    
+     
     if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendQueriesTask.delay(CleanKwargs(kwargs), requestargs, queries, name, is_view=is_view,
                                     ga_exp_time=ga_expiration_time,
@@ -62,7 +56,8 @@ def TransmitQueries(request, kwargs, queries, sender=None, name=''):
                          ga_cookie=cookie )
 
 
-def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name=''):
+def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name='',
+                      cookie=None, ga_expiration_time=''):
     "Sends benchmark data to server"
     if exectime is None or exectime <= 0.0:
         return
@@ -75,13 +70,6 @@ def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name=''):
     
     requestargs = simplejson.dumps(dict(request.GET))
     
-    if appsettings.TRACK_GOOGLE_ANALYTICS:
-        cookie = request.session['ga-report-id']
-        ga_expiration_time = Decimal(request.session.get_expiry_age())
-    else:
-        cookie=None
-        ga_expiration_time=''
-    
     if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendBenchmarkTask.delay(CleanKwargs(kwargs), requestargs, exectime, cputime, name, is_view=is_view,
                                       ga_exp_time=ga_expiration_time,
@@ -93,7 +81,8 @@ def TransmitBenchmark(request, kwargs, exectime, cputime, sender=None, name=''):
 
 
 
-def TransmitMemcacheStats(request, kwargs, stats, sender=None, name=''):
+def TransmitMemcacheStats(request, kwargs, stats, sender=None, name='',
+                          cookie=None, ga_expiration_time=''):
     """
     Transmits profiled memcache data to djangoperformance.com
     """
@@ -107,13 +96,6 @@ def TransmitMemcacheStats(request, kwargs, stats, sender=None, name=''):
         is_view = False
     
     requestargs = simplejson.dumps(dict(request.GET))
-
-    if appsettings.TRACK_GOOGLE_ANALYTICS:
-        cookie = request.session['ga-report-id']
-        ga_expiration_time = Decimal(request.session.get_expiry_age())
-    else:
-        cookie=None
-        ga_expiration_time=''
 
     for stat in stats:
         if stat is None or stat.__class__.__name__ != 'MemcachedStats':
@@ -129,7 +111,8 @@ def TransmitMemcacheStats(request, kwargs, stats, sender=None, name=''):
                                   ga_cookie=cookie ) 
 
 
-def TransmitUserActivity(request, kwargs, sender=None, name=''):
+def TransmitUserActivity(request, kwargs, sender=None, name='',
+                         cookie=None, ga_expiration_time=''):
     if not name:
         name = _getviewname(sender)
         is_view = True
@@ -147,13 +130,6 @@ def TransmitUserActivity(request, kwargs, sender=None, name=''):
         useremail = request.user.email
     
     requestargs = simplejson.dumps(dict(request.GET))
-    
-    if appsettings.TRACK_GOOGLE_ANALYTICS:
-        cookie = request.session['ga-report-id']
-        ga_expiration_time = Decimal(request.session.get_expiry_age())
-    else:
-        cookie=None
-        ga_expiration_time=''
 
     if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendUserActivity(CleanKwargs(kwargs), requestargs, is_anonymous, username, userid, useremail, name, is_view=is_view,
@@ -165,7 +141,8 @@ def TransmitUserActivity(request, kwargs, sender=None, name=''):
                               ga_cookie=cookie) 
 
 
-def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sender):
+def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sender,
+                        cookie=None, ga_expiration_time=''):
     name = _getviewname(sender)
     
     is_anonymous = not request.user.is_authenticated()
@@ -179,13 +156,6 @@ def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sen
         useremail = request.user.email
     
     requestargs = simplejson.dumps(dict(request.GET))
-    
-    if appsettings.TRACK_GOOGLE_ANALYTICS:
-        cookie = request.session['ga-report-id']
-        ga_expiration_time = Decimal(request.session.get_expiry_age())
-    else:
-        cookie=None
-        ga_expiration_time=''
     
     if appsettings.SEND_IN_CELERY_QUEUE:
         tasks.SendBundle.delay(CleanKwargs(kwargs), requestargs, querydata, exectime, cputime, stat, is_anonymous, username, userid, useremail, name,
