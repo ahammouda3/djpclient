@@ -57,10 +57,10 @@ class DJPClientMiddleware(object):
         cookie_expire=''
         
         if request.session.session_key is None:
-            if request.COOKIES['sessionid'] is None:
-                request.session.flush()
-                print '----------->Process view: Resetting key'
-                print '----------->', request.session.session_key
+            #if request.COOKIES['sessionid'] is None:
+            request.session.flush()
+            print '----------->Process view: Resetting key'
+            print '----------->', request.session.session_key
         
         print '-- COOKIES ----------->', request.COOKIES['sessionid']
         #print '-- session dict ----------->',request.session.__dict__
