@@ -62,8 +62,9 @@ class DJPClientMiddleware(object):
             print '----------->Process view: Resetting key'
             print '----------->', request.session.session_key
         
-        #print '-- COOKIES ----------->', request.COOKIES['sessionid']
-        #print '-- session dict ----------->',request.session.__dict__
+        print '-- req_dict ----------->', request.__dict__
+        print '-- session dict ----------->',request.session.__dict__
+        print '-- session key ----------->',request.session.session_key
                 
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             try:
@@ -83,9 +84,9 @@ class DJPClientMiddleware(object):
                 print 'already set .. .. ..'
                 print s.session_data
                 print type(s.session_data)
-                print s.get_decoded()
-                print SessionStore.decode(s,s.session_data)
-                print ast.literal_eval(s.session_data)
+                print s.session_data.get_decoded()
+                #print SessionStore.decode(s,s.session_data)
+                #print ast.literal_eval(s.session_data)
                 #print type(ast.literal_eval(s.session_data))
                 cookie_val = ast.literal_eval(s.session_data)['ga-report-id']
                 cookie_expire = s.expire_date
@@ -144,10 +145,11 @@ class DJPClientMiddleware(object):
         # Therefore, need to see what kind of access one can have with google analytics custom vars
         # Also need to look into persistence of session-vars as a user navigates around a site
         # ....
-        #print '-------------------> Begin Process Response'
+        print '-------------------> Begin Process Response'
         #print '----------sesh key --->',request.session.session_key
-        #print request.COOKIES, 'request COOKIES '
-        #print request.session.__dict__ , 'request.session dict'
+        print request.__dict__ , 'request COOKIES '
+        print request.session.__dict__ , 'request.session dict'
+        print '-- session key ----------->',request.session.session_key
         #print request.COOKIES#['sessionid'], '<------------ Begin Process resp'
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             content = response.content
