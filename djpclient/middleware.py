@@ -62,7 +62,7 @@ class DJPClientMiddleware(object):
             print '----------->Process view: Resetting key'
             print '----------->', request.session.session_key
         
-        print '-- COOKIES ----------->', request.COOKIES['sessionid']
+        #print '-- COOKIES ----------->', request.COOKIES['sessionid']
         #print '-- session dict ----------->',request.session.__dict__
                 
         if appsettings.TRACK_GOOGLE_ANALYTICS:
@@ -122,7 +122,7 @@ class DJPClientMiddleware(object):
                                              cookie=cookie_val,
                                              ga_expiration_time=cookie_expire)
         print '-------------------> End Of Process Request'
-        print request.COOKIES['sessionid']
+        #print request.COOKIES['sessionid']
         #print request.session.__dict__
         return response
     
