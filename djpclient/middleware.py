@@ -83,8 +83,10 @@ class DJPClientMiddleware(object):
                 print 'already set .. .. ..'
                 print s.session_data
                 print type(s.session_data)
+                print s.get_decoded()
+                print SessionStore.decode(s,s.session_data)
                 print ast.literal_eval(s.session_data)
-                print type(ast.literal_eval(s.session_data))
+                #print type(ast.literal_eval(s.session_data))
                 cookie_val = ast.literal_eval(s.session_data)['ga-report-id']
                 cookie_expire = s.expire_date
         
