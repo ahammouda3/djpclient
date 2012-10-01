@@ -145,7 +145,8 @@ def TransmitBundledData(request, kwargs, querydata, exectime, cputime, stat, sen
                         cookie=None, ga_expiration_time=''):
     
     name = _getviewname(sender)
-    
+    request.session.session_key
+
     is_anonymous = not request.user.is_authenticated()
     if is_anonymous:
         username = 'anonymous'

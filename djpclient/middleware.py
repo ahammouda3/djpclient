@@ -1,12 +1,13 @@
-import base64, binascii
+#import base64, binascii
+#import ast
 from django.http import HttpResponse
 from django.conf import settings
 from django.db import connection
 from django.utils import simplejson
-import ast
+
 import appsettings
 import memory, actions
-from djpclient.models import User
+#from djpclient.models import User
 from djpclient.utils import format_data
 
 import stopwatch, time, pdb, datetime
@@ -16,8 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 "For interacting with sessions outside of views"
-from django.contrib.sessions.backends.db import SessionStore
-from django.contrib.sessions.models import Session
+#from django.contrib.sessions.backends.db import SessionStore
+#from django.contrib.sessions.models import Session
 
 class DJPClientMiddleware(object):
     def __init__(self):
@@ -55,42 +56,11 @@ class DJPClientMiddleware(object):
         
         cookie_val=None
         cookie_expire=''
-        
-        if request.session.session_key is None:
-            #if request.COOKIES['sessionid'] is None:
-            request.session.flush()
-            print '----------->Process view: Resetting key'
-            print '----------->', request.session.session_key
-        
-        print '-- req_dict ----------->', request.__dict__
-        print '-- session dict ----------->',request.session.__dict__
-        print '-- session key ----------->',request.session.session_key
-                
+        '''
         if appsettings.TRACK_GOOGLE_ANALYTICS:
-            try:
-                s = Session.objects.get(pk=request.session.session_key)
-            except Exception:
-                print 'New session variable initializing ... '
-                now=datetime.datetime.now()
-                lifetime=( datetime.datetime(now.year, now.month, now.day +1, 0) - now )#.total_seconds()
-                exp_date = now + lifetime
-                
-                new_user = User.objects.create(creation_time=now)
-                print request.session.session_key
-                s = Session(session_key=request.session.session_key, expire_date=exp_date, 
-                            session_data={'ga-report-id':new_user.analytics_id})
-                s.save()
-            else:
-                print 'already set .. .. ..'
-                print s.session_data
-                print type(s.session_data)
-                print s.session_data.get_decoded()
-                #print SessionStore.decode(s,s.session_data)
-                #print ast.literal_eval(s.session_data)
-                #print type(ast.literal_eval(s.session_data))
-                cookie_val = ast.literal_eval(s.session_data)['ga-report-id']
-                cookie_expire = s.expire_date
-        
+            "Again, once decorators get implemented, this portion of code
+            require piping request.session info into the variables set above"
+        '''
         response = view(request, *args, **kwargs)
         
         if appsettings.BUNDLE_DATA:
@@ -100,7 +70,7 @@ class DJPClientMiddleware(object):
                                         memory.GetAggregateMemcacheStats(),
                                         sender=view,
                                         cookie=cookie_val, 
-                                        ga_expiration_time=cookie_expire)
+                                        ga_expiration_time=cookie_expire )
         else:
             if getattr(settings, 'PROFILE_QUERIES', True):
                 actions.TransmitQueries(request, kwargs,
@@ -128,9 +98,6 @@ class DJPClientMiddleware(object):
                                              sender=view,
                                              cookie=cookie_val,
                                              ga_expiration_time=cookie_expire)
-        print '-------------------> End Of Process Request'
-        #print request.COOKIES['sessionid']
-        #print request.session.__dict__
         return response
     
     
@@ -139,37 +106,18 @@ class DJPClientMiddleware(object):
         Alters the response with the tracking script; the {% djp_ga_js_script %} inserts the
         html-frinedly placeholder, which is replaced by this process response if available
         """
-        # Should pull out previously set cookie (GA-ACCOUNTS-ID) to be injected into ga.js
-        # This should then be injected into a google analytics custom variable
-        
-        # Therefore, need to see what kind of access one can have with google analytics custom vars
-        # Also need to look into persistence of session-vars as a user navigates around a site
-        # ....
-        print '-------------------> Begin Process Response'
-        #print '----------sesh key --->',request.session.session_key
-        print request.__dict__ , 'request COOKIES '
-        print request.session.__dict__ , 'request.session dict'
-        print '-- session key ----------->',request.session.session_key
-        #print request.COOKIES#['sessionid'], '<------------ Begin Process resp'
+
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             content = response.content
             index = content.find(appsettings.GA_JS_PLACEHOLDER)
-            
             if index < 0:
                 return response
-            #print '--- Before set key --->', request.session.session_key
-            #print '--- Before set Cookies --->', request.COOKIES, 'request COOKIES ' 
-            print '--- Before set dict --->',   request.__dict__ , 'request dict ' 
-            print request.session.__dict__, '<-------------- Setting dict (Before setting)'
-            print request.COOKIES, '<------------ Before setting (cookie dict)'
-            print request.session.session_key , '<---session key'
-            s = Session.objects.get(pk=request.COOKIES['sessionid'])
+            "Again, if decorators get going, we'll be stripping from request/response values ideally"
             newcontent = content.replace(
                 appsettings.GA_JS_PLACEHOLDER, 
                 self.tracking_script_template 
-                %(appsettings.GA_PROFILE_ID, ast.literal_eval(s.session_data)['ga-report-id'])
+                %(appsettings.GA_PROFILE_ID, appsettings.GA_JS_PLACEHOLDER)
                 )
             return HttpResponse(content=newcontent)
         else:
             return response
-        
