@@ -61,7 +61,7 @@ class DJPClientMiddleware(object):
             cookie_val = request.session['ga-report-id']
             cookie_expire = request.session.get_expiry_age()
         '''
-        
+        print '************* Process view ******************'
         response = view(request, *args, **kwargs)
         
         if appsettings.BUNDLE_DATA:
@@ -107,12 +107,7 @@ class DJPClientMiddleware(object):
         Alters the response with the tracking script; the {% djp_ga_js_script %} inserts the
         html-frinedly placeholder, which is replaced by this process response if available
         """
-        if appsettings.TRACK_GOOGLE_ANALYTICS:
-            cookie_val = request.session['ga-report-id']
-            cookie_expire = request.session.get_expiry_age()
-            print 'Success'
-        
-        
+        print '************* Process Response ******************'
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             content = response.content
             index = content.find(appsettings.GA_JS_PLACEHOLDER)
@@ -122,7 +117,7 @@ class DJPClientMiddleware(object):
             newcontent = content.replace(
                 appsettings.GA_JS_PLACEHOLDER, 
                 self.tracking_script_template 
-                %(appsettings.GA_PROFILE_ID, request.session['ga-report-id'])
+                %(appsettings.GA_PROFILE_ID, appsettings.TEST_SLUG)#request.session['ga-report-id'])
                 )
             return HttpResponse(content=newcontent)
         else:

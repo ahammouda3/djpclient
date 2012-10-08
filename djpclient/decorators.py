@@ -109,6 +109,7 @@ def inject_ga_tracking(func):
             lifetime = u.creation_time + datetime.timedelta(days=1)
             request.session['ga-report-id'] = u.analytics_id
             request.session.set_expiry( lifetime )
+            print '************* Set the var ******************'
         else: 
             print "SUCESS !!"
         
