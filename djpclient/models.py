@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import utc
 
 from datetime import datetime
 
@@ -9,4 +10,6 @@ class User(models.Model):
     The other fields besides analytics_id may choose to be useful for speed as well.
     '''
     analytics_id = models.AutoField(primary_key=True)
-    creation_time = models.DateTimeField(null=False, default=datetime.now())
+    creation_time = models.DateTimeField(null=False, 
+                                         default=datetime.utcnow().replace(tzinfo=utc) )
+    

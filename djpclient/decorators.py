@@ -1,19 +1,19 @@
-
 from django.conf import settings
 from django.db import connection
 from django.utils import simplejson
 
 from functools import wraps
-import memory, actions
+import datetime
+import stopwatch
+import time
+import logging
+import pdb
 
+from models import User
+import memory, actions
 import appsettings
 
-import stopwatch, time
-
-import logging
 logger = logging.getLogger(__name__)
-
-import pdb
 
 def profile(fn):
     def wrapped(request, *args, **kwargs):
@@ -100,7 +100,15 @@ def profile_components(components=[]):
         return wraps(func)(inner_decorator)
     return decorator
 
-
-
-
-
+def inject_ga_tracking(func):
+    @wraps(func)
+    def wrapped(request, *args, **kwargs):
+        if 'ga-report-id' not in request.session:
+            u = User.objects.create()
+            lifetime = u.creation_time + datetime.timedelta(days=1)
+            request.session['ga-report-id'] = u.analytics_id
+            request.session.set_expiry( lifetime )
+        
+        return func(request, *args, **kwargs)
+    
+    return wrapped

@@ -29,6 +29,7 @@ SEND_DELAY = getattr(settings, 'DJP_SEND_DELAY', 1.0)
 BUNDLE_DATA = getattr(settings, 'USE_BUNDLED_ENDPOINT', True)
 
 if getattr(settings, 'CURRENT_ENVIRONMENT')=='DEV':
+    #BASE_URL = 'http://www.djangoperformance.com'
     BASE_URL = 'http://localhost:8000'
 elif getattr(settings, 'CURRENT_ENVIRONMENT')=='STAGING':
     BASE_URL = 'http://ga-djangoperformance.herokuapp.com'
@@ -50,7 +51,8 @@ LOG_MESSAGE_ENDPOINT = '%s/api/%s/logmessage/?%s' % (BASE_URL, API_VERSION, CRED
 #----------------------------------
 # Google Analytics Data Enabling
 #----------------------------------
-GA_JS_PLACEHOLDER = '<!-- ga_js_placeholder -->'
+GA_JS_PLACEHOLDER = '<---ga-js-placeholder-->'
 TRACK_GOOGLE_ANALYTICS = getattr(settings,'TRACK_GOOGLE_ANALYTICS',True)
 GA_PROFILE_ID = getattr(settings,'GA_PROFILE_ID', None)
 SESSION_COOKIE_DOMAIN = getattr(settings,'SESSION_COOKIE_DOMAIN', None)
+TEST_SLUG = 123456789

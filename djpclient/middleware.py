@@ -34,11 +34,11 @@ class DJPClientMiddleware(object):
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);                                                                                
           })();                                                                                                                                                                  
         
-        _gaq.push(['_setCustomVar',                                                                                                                                              
-              1,                   // This custom var is set to slot #1.  Required parameter.                                                                                    
-              'GA-REPORTING-ID',           // The top-level name for your online content categories.  Required parameter.                                                        
-              '%i',  // Sets the value of 'GA-REPORTING-ID' to take the session-id parameter for this particular aricle.  Required parameter.                                    
-              1                    // (Optional) Sets the scope: 1:visitor-level; 2:session-level; 3:page-level;                                                                 
+        _gaq.push(['_setCustomVar',                                                                                    
+              1,                   // This custom var is set to slot #1.  Required parameter.
+              'ga-report-id',           // The top-level name for your online content categories.  Required parameter.
+              '%i',  // Sets the value of 'GA-REPORTING-ID' to take the session-id parameter for this particular aricle.  Required parameter.
+              1                    // (Optional) Sets the scope: 1:visitor-level; 2:session-level; 3:page-level;                                    
            ]);                                                                                                                                                                   
         </script>                                                                                                                                                                
         """
@@ -56,11 +56,11 @@ class DJPClientMiddleware(object):
         
         cookie_val=None
         cookie_expire=''
-        '''
+        
         if appsettings.TRACK_GOOGLE_ANALYTICS:
-            "Again, once decorators get implemented, this portion of code
-            require piping request.session info into the variables set above"
-        '''
+            cookie_val = request.session['ga-report-id']
+            cookie_expire = request.session.get_expiry_age()
+        
         response = view(request, *args, **kwargs)
         
         if appsettings.BUNDLE_DATA:
@@ -106,7 +106,7 @@ class DJPClientMiddleware(object):
         Alters the response with the tracking script; the {% djp_ga_js_script %} inserts the
         html-frinedly placeholder, which is replaced by this process response if available
         """
-
+        
         if appsettings.TRACK_GOOGLE_ANALYTICS:
             content = response.content
             index = content.find(appsettings.GA_JS_PLACEHOLDER)
@@ -116,7 +116,7 @@ class DJPClientMiddleware(object):
             newcontent = content.replace(
                 appsettings.GA_JS_PLACEHOLDER, 
                 self.tracking_script_template 
-                %(appsettings.GA_PROFILE_ID, appsettings.GA_JS_PLACEHOLDER)
+                %(appsettings.GA_PROFILE_ID, request.session['ga-report-id'])
                 )
             return HttpResponse(content=newcontent)
         else:
