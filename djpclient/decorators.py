@@ -104,14 +104,15 @@ def inject_ga_tracking(func):
     @wraps(func)
     def wrapped(request, *args, **kwargs):
         
-        if 'ga-report-id' not in request.session:
+        if 'ga-report-id' in request.session:
+            print "SUCESS !!"
+            pass
+        else:
             u = User.objects.create()
             lifetime = u.creation_time + datetime.timedelta(days=1)
             request.session['ga-report-id'] = u.analytics_id
             request.session.set_expiry( lifetime )
             print '************* Set the var ******************'
-        else: 
-            print "SUCESS !!"
         
         return func(request, *args, **kwargs)
     
